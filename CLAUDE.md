@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Project overview
 
 Interactive portfolio website for Candice Fairand (Frontend & Mobile Engineer — React, React Native, TypeScript). The main navigation is an Obsidian-style force-directed graph, occupying roughly 30-50% of the viewport height, sitting above a content panel. There is no traditional routing: this is a single-page app, and the graph is the only way to navigate.
@@ -13,7 +15,8 @@ Full design reference: see `/design` (Figma exports) and `SPEC.md` for the compl
 - d3-force — used ONLY for the transient physics simulation triggered by node dragging. Never for idle animation or initial layout.
 - TailwindCSS — styling
 - Framer Motion — content panel transitions, skills overlay animations
-- State sync (graph ↔ content panel): [Zustand or Context — TBD, confirm before first use]
+- State sync (graph ↔ content panel): Zustand or Context — **confirm the choice before first use and record it here**
+- React Flow is imported from `@xyflow/react` (v12)
 
 ## Key architectural decisions — do not deviate without checking SPEC.md
 
@@ -27,11 +30,21 @@ Full design reference: see `/design` (Figma exports) and `SPEC.md` for the compl
 
 - Variable names and code comments: English, always.
 - Functional components + hooks throughout.
-- [File/folder structure — to fill in once scaffolded]
+- File/folder structure:
+  - `src/components/` — React components (`PortfolioGraph.tsx`, …)
+  - `src/data/` — static data / graph definitions (`graphData.ts`)
+  - `src/assets/fonts/` — local WOFF2 files (Space Mono Regular + Bold)
 
 ## Commands
 
-[To fill in once package.json exists — dev server, build, lint, test]
+```bash
+npm run dev       # dev server (Vite HMR)
+npm run build     # tsc -b && vite build
+npm run lint      # eslint
+npm run preview   # preview production build locally
+```
+
+No test runner is configured yet.
 
 ## Reference
 

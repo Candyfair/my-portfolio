@@ -20,6 +20,9 @@ Vite + React + TypeScript, React Flow, d3-force (drag physics only), TailwindCSS
 7 primary nodes: `about`, `portfolio`, `skills`, `articles`, `newsfeed`, `contact`, `socials`.
 Positions are fixed/deterministic at init, matching the constellation layout shown in the Figma mockups (Home.png / MOBILE__Home.png) — NOT computed by a live force layout.
 
+6 edges (directed, source → target):
+`about → portfolio`, `portfolio → skills`, `skills → contact`, `skills → articles`, `articles → newsfeed`, `newsfeed → socials`.
+
 ## 4. Idle floating animation
 
 - Driven by `requestAnimationFrame`, not d3-force.
