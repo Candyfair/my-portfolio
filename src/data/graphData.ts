@@ -1,8 +1,8 @@
 import type { Node, Edge } from '@xyflow/react'
 
 export const GRAPH_NODES: Node[] = [
-  { id: 'about',     type: 'dot', position: { x: 165, y: 0   }, data: {} },
-  { id: 'portfolio', type: 'dot', position: { x: 260, y: 48  }, data: {} },
+  { id: 'about',     type: 'dot', position: { x: 135, y: 0   }, data: {} },
+  { id: 'portfolio', type: 'dot', position: { x: 230, y: 48  }, data: {} },
   { id: 'skills',    type: 'dot', position: { x: 50,  y: 78  }, data: {} },
   { id: 'contact',   type: 'dot', position: { x: 0,   y: 175 }, data: {} },
   { id: 'articles',  type: 'dot', position: { x: 82,  y: 226 }, data: {} },
