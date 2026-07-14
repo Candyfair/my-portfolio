@@ -48,6 +48,13 @@ Positions are fixed/deterministic at init, matching the constellation layout sho
 
 - Fixed-position container, opaque background.
 - Can grow in height as content requires; when content is large (e.g. `about`), the panel can visually cover the lower part of the graph, fully hiding any nodes underneath it.
+- Panel top position has 3 regimes based on measured content height:
+  1. Short content: pinned at the separator's natural resting position
+     (right after the graph), height = content (auto, no stretch).
+  2. Medium content: panel top (and the separator, moving with it) rises to
+     stay exactly fitted to content height — top = 100vh - contentHeight.
+  3. Long content: rise is capped at the nav container's bottom edge
+     (measured via ref) — panel stops rising and scrolls internally instead.
 - Height changes are animated (smooth slide/height transition), not instant.
 - Only the panel's own content scrolls (`overflow-y: auto`) when it overflows — the page itself never scrolls.
 - Content type per node:

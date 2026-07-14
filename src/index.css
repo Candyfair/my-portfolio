@@ -69,3 +69,8 @@ html, body {
   color: var(--color-accent);
   opacity: 1;
 }
+
+.react-flow__node-dot {
+  pointer-events: all !important;
+  cursor: pointer;
+}
