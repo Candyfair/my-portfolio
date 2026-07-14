@@ -32,10 +32,33 @@ Positions are fixed/deterministic at init, matching the constellation layout sho
 
 ## 5. Drag interaction physics
 
-- A d3-force simulation is instantiated on `onNodeDragStart`, scoped to the dragged node (and possibly its direct graph neighbors — confirm before implementing neighbor propagation).
-- Standard `alphaDecay` (not 0 — unlike RADA, this simulation must settle and stop).
-- On settle, the affected node's new position becomes its new floating anchor (a nearby resting position, not a snap-back to the original mockup coordinates).
-- All other nodes' idle floating (§4) continues uninterrupted during any drag.
+- A d3-force simulation is instantiated on `onNodeDragStart`, scoped to the dragged node and its direct graph neighbors.
+- `alphaDecay = 0` throughout (drag phase and settling phase); simulation is terminated by velocity checks, not by alpha decay.
+- `velocityDecay = 0.4` (moderate friction).
+
+**During drag:**
+- Dragged node is pinned (`fx`/`fy`) at its real cursor position, updated each `onNodeDrag`. React Flow owns its rendered position; the pin keeps the sim in sync.
+- Neighbors are connected to the pinned node via `forceLink` (`DRAG_LINK_STRENGTH = 0.08`), computed at the natural link distance measured at drag start. They trail behind with elastic lag — links visibly stretch.
+- `autoPanOnNodeDrag = false` to prevent the viewport shifting when a node approaches the canvas edge.
+- Node positions are clamped to the container bounds (`nodeExtent`) via `screenToFlowPosition`, updated on `onInit` and `ResizeObserver`.
+
+**On drag release (`onNodeDragStop`):**
+- Pin is released (`fx`/`fy = null`); dragged node receives the velocity captured from the last two `onNodeDrag` positions (`Δpos × 0.4 scaling`).
+- `forceLink` is removed. Weak `forceX`/`forceY` forces (`NEIGHBOR_RETURN_STRENGTH = 0.005`) are applied uniformly to all nodes in the sim — dragged node and neighbors alike — each pulled toward its **original** anchor. The dragged node returns to its original position; it does not keep its drop position as a new anchor.
+- No additional velocity impulse is given to neighbors at release — they carry whatever velocity they accumulated from the link spring during drag.
+
+**Settling (single phase):**
+- All nodes converge toward their original anchors under the return forces.
+- `settlingRef` is cleared when every node's velocity falls below `0.02 px/frame`.
+- All node positions written by the sim are passed through `clampToContainer()` before being set on the React Flow node state.
+- Nodes not involved in the drag continue idle floating (§4) uninterrupted throughout.
+
+**New drag interrupting active settling:**
+- When a second drag starts while nodes are still settling from a prior drag, those nodes would otherwise snap abruptly to their anchor (falling cold into the idle-float formula). Instead:
+  - Each node from the interrupted sim records a `BlendState` (its live sim position at interruption time).
+  - For 300 ms, that node interpolates from its captured position toward the live idle-float curve using an ease-out cubic, then resumes idle float seamlessly. No domain constraint — works regardless of how far the node was from its anchor.
+  - Nodes that are also neighbors of the new drag skip the blend (the new sim governs them immediately).
+  - Velocity from the old sim is carried into the new sim for any node that transitions between sims, avoiding a velocity jerk.
 
 ## 6. Node selection behavior
 
