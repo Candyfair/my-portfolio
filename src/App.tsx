@@ -15,6 +15,27 @@ function App() {
   const [separatorBottom, setSeparatorBottom] = useState(0)
   const [navBottom, setNavBottom] = useState(0)
 
+  const [inputValue, setInputValue] = useState('')
+  const [inputError, setInputError] = useState('')
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(e.target.value)
+    if (inputError) setInputError('')
+  }
+
+  function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== 'Enter') return
+    const match = NAV_ITEMS.find(item => item === inputValue.trim().toLowerCase())
+    if (match) {
+      select(match)
+      setInputValue('')
+      setInputError('')
+    } else {
+      setInputValue('')
+      setInputError('node not found')
+    }
+  }
+
   useLayoutEffect(() => {
     function measure() {
       if (separatorRef.current) {
@@ -68,6 +89,9 @@ function App() {
               <input
                 type="text"
                 placeholder="Type here or select a node in the graph"
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
                 style={{
                   flex: 1,
                   background: 'transparent',
@@ -80,6 +104,11 @@ function App() {
                 }}
               />
             </div>
+            {inputError && (
+              <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--color-accent)' }}>
+                {inputError}
+              </p>
+            )}
           </div>
 
           {/* Nav + Graph */}

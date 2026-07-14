@@ -44,6 +44,13 @@ Positions are fixed/deterministic at init, matching the constellation layout sho
 - Deselecting: the exact reverse animation (label returns to the nav list, color reverts).
 - The content panel appears below the dashed separator.
 
+## 6bis. Search input navigation
+
+Typing a node name into the "Where do you want to go?" input and pressing
+Enter triggers the exact same select() behavior as clicking that node
+(case-insensitive, trimmed). Non-matching input on Enter shows a text
+error message below the input, cleared on next input change.
+
 ## 7. Content panel
 
 - Fixed-position container, opaque background.
@@ -95,3 +102,4 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - Zustand vs Context for graph ↔ panel state sync
 - Whether drag physics propagates to the dragged node's direct neighbors or only the dragged node itself
 - Exact color/design tokens beyond grey (default) / orange (active)
+- Input field visual styling does not yet match the mockup (colors, border, font) — pending a dedicated visual-polish pass.
