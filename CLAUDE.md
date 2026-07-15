@@ -34,6 +34,7 @@ Full design reference: see `/design` (Figma exports) and `SPEC.md` for the compl
   - `src/components/` — React components (`PortfolioGraph.tsx`, …)
   - `src/data/` — static data / graph definitions (`graphData.ts`)
   - `src/assets/fonts/` — local WOFF2 files (Space Mono Regular + Bold)
+- Contenu statique (textes, listes de catégories, etc.) : toujours dans un fichier de data séparé, typé, importé par le composant qui l'affiche - jamais codé en dur dans le JSX.
 
 ## Commands
 

@@ -14,6 +14,7 @@ import { forceSimulation, forceLink, forceX, forceY } from 'd3-force'
 import type { Simulation, SimulationNodeDatum } from 'd3-force'
 import { GRAPH_NODES, GRAPH_EDGES } from '../data/graphData'
 import { useSelection } from '../context/SelectionContext'
+import { motion } from 'framer-motion'
 
 const DOT_PX = 10
 const COLOR = '#958B76'
@@ -36,13 +37,23 @@ const hiddenHandle: CSSProperties = {
 function DotNode({ id }: NodeProps) {
   const { selectedId } = useSelection()
   const isSelected = selectedId === id
+  const dimmed = selectedId === 'skills' && !isSelected
   return (
-    <div style={{ position: 'relative', width: DOT_PX, height: DOT_PX, cursor: 'pointer' }}>
+    <div
+      style={{
+        position: 'relative', width: DOT_PX, height: DOT_PX, cursor: 'pointer',
+        opacity: dimmed ? 0.35 : 1, transition: 'opacity 0.3s ease',
+      }}
+    >
       <Handle type="target" position={Position.Top} style={hiddenHandle} />
-      <div
+      <motion.div
+        initial={false}
+        animate={{
+          width:  isSelected && id === 'skills' ? DOT_PX * 3 : DOT_PX,
+          height: isSelected && id === 'skills' ? DOT_PX * 3 : DOT_PX,
+        }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
-          width: DOT_PX,
-          height: DOT_PX,
           borderRadius: '50%',
           backgroundColor: isSelected ? 'var(--color-accent)' : COLOR,
           transition: 'background-color 0.2s ease',
@@ -97,6 +108,8 @@ function getNeighborIds(nodeId: string): string[] {
     .filter(e => e.source === nodeId || e.target === nodeId)
     .map(e => e.source === nodeId ? e.target : e.source)
 }
+
+const SKILLS_IDX = GRAPH_NODES.findIndex(n => n.id === 'skills')
 
 // --- Inner component (inside ReactFlowProvider, can use useReactFlow) ---
 
@@ -162,9 +175,17 @@ function GraphInner({
 
   const { selectedId, select, deselect } = useSelection()
 
-  // Keep nodeScreenPosRef in sync with every render (rAF updates nodes 60fps)
+  const effectiveEdges = selectedId === 'skills'
+    ? GRAPH_EDGES.map(e => ({ ...e, style: { stroke: COLOR, strokeWidth: 1, opacity: 0.35 } }))
+    : GRAPH_EDGES
+
+  // Keep nodeScreenPosRef in sync with every render (rAF updates nodes 60fps).
+  // For the skills node, always write the ANCHOR screen position (not live/displaced)
+  // so that selectedScreenPos and the overlay are always anchored to the rest position.
   for (const node of nodes) {
-    nodeScreenPosRef.current[node.id] = flowToScreenRef.current(node.position)
+    nodeScreenPosRef.current[node.id] = node.id === 'skills'
+      ? flowToScreenRef.current(anchorsRef.current[SKILLS_IDX])
+      : flowToScreenRef.current(node.position)
   }
 
   const lastDragPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -305,7 +326,7 @@ function GraphInner({
     <ReactFlow
       nodes={nodes}
       onNodesChange={onNodesChange}
-      edges={GRAPH_EDGES}
+      edges={effectiveEdges}
       nodeTypes={nodeTypes}
       defaultEdgeOptions={defaultEdgeOptions}
       onNodeClick={handleNodeClick}
@@ -332,7 +353,7 @@ function GraphInner({
 // --- Outer component ---
 
 export function PortfolioGraph() {
-  const { nodeScreenPosRef } = useSelection()
+  const { nodeScreenPosRef, selectedId } = useSelection()
 
   const anchorsRef = useRef(
     GRAPH_NODES.map(n => ({ x: n.position.x, y: n.position.y }))
@@ -354,9 +375,46 @@ export function PortfolioGraph() {
   const draggingNeighborIdsRef = useRef<string[]>([])
   const settlingRef = useRef<SettlingState | null>(null)
   const nodeBlendRef = useRef<(BlendState | null)[]>(GRAPH_NODES.map(() => null))
+
   const containerRef = useRef<HTMLDivElement>(null)
   const nodeExtentRef = useRef<[[number, number], [number, number]] | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState(GRAPH_NODES)
+
+  type FrozenSnap = { startX: number; startY: number; startTime: number; targetX: number; targetY: number; snapDuration: number }
+  const frozenSnapRef = useRef<FrozenSnap | null>(null)
+  const nodesRef = useRef(nodes)
+  nodesRef.current = nodes
+
+  useEffect(() => {
+    if (selectedId === 'skills') {
+      const currentNode = nodesRef.current.find(n => n.id === 'skills')
+      if (currentNode) {
+        frozenSnapRef.current = {
+          startX: currentNode.position.x,
+          startY: currentNode.position.y,
+          startTime: performance.now(),
+          targetX: anchorsRef.current[SKILLS_IDX].x,
+          targetY: anchorsRef.current[SKILLS_IDX].y,
+          snapDuration: 300,
+        }
+      }
+    } else {
+      const snap = frozenSnapRef.current
+      if (snap) {
+        const elapsed = performance.now() - snap.startTime
+        const progress = Math.min(1, elapsed / snap.snapDuration)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        nodeBlendRef.current[SKILLS_IDX] = {
+          startTime: performance.now(),
+          startX: snap.startX + (snap.targetX - snap.startX) * eased,
+          startY: snap.startY + (snap.targetY - snap.startY) * eased,
+          duration: 300,
+        }
+      }
+      frozenSnapRef.current = null
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId])
 
   useEffect(() => {
     let rafId: number
@@ -410,6 +468,19 @@ export function PortfolioGraph() {
         }
       }
 
+      // Capture frozen snap position for this frame (same pre-setNodes pattern as settlingPositions)
+      let frozenSnapPos: { x: number; y: number } | null = null
+      const frozenSnap = frozenSnapRef.current
+      if (frozenSnap) {
+        const elapsed = now - frozenSnap.startTime
+        const progress = Math.min(1, elapsed / frozenSnap.snapDuration)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        frozenSnapPos = {
+          x: frozenSnap.startX + (frozenSnap.targetX - frozenSnap.startX) * eased,
+          y: frozenSnap.startY + (frozenSnap.targetY - frozenSnap.startY) * eased,
+        }
+      }
+
       // Capture current drag state as a local value for the closure below
       const draggingId = draggingNodeIdRef.current
 
@@ -417,6 +488,11 @@ export function PortfolioGraph() {
         prev.map((node, i) => {
           // 1. Actively dragged — React Flow owns the position
           if (draggingId === node.id) return node
+
+          // 1b. Skills frozen — snap to anchor (ease-out 300ms), then hold
+          if (frozenSnapPos && node.id === 'skills') {
+            return { ...node, position: clampToContainer(frozenSnapPos) }
+          }
 
           // 2+3. Sim active (drag or settling) — apply positions from this frame's tick
           if (settlingPositions) {

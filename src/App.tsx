@@ -3,9 +3,12 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { PortfolioGraph } from './components/PortfolioGraph'
 import { ContentPanel } from './components/ContentPanel'
+import { SkillsOverlay } from './components/SkillsOverlay'
 import { useSelection } from './context/SelectionContext'
 
 const NAV_ITEMS = ['about', 'portfolio', 'skills', 'articles', 'newsfeed', 'contact', 'socials'] as const
+
+const SKILLS_OVERLAY_BOTTOM_MARGIN = 20  // px gap between lowest skills card and the dashed separator
 
 function App() {
   const { selectedId, selectedScreenPos, select, deselect } = useSelection()
@@ -14,6 +17,8 @@ function App() {
   const navRef = useRef<HTMLElement>(null)
   const [separatorBottom, setSeparatorBottom] = useState(0)
   const [navBottom, setNavBottom] = useState(0)
+  const [skillsCardsBottom, setSkillsCardsBottom] = useState(0)
+  const effectiveSeparatorBottom = Math.max(separatorBottom, skillsCardsBottom + SKILLS_OVERLAY_BOTTOM_MARGIN)
 
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
@@ -194,7 +199,9 @@ function App() {
         )}
       </AnimatePresence>
 
-      <ContentPanel separatorBottom={separatorBottom} navBottom={navBottom} />
+      <SkillsOverlay onCardsBottomChange={setSkillsCardsBottom} />
+
+      <ContentPanel separatorBottom={effectiveSeparatorBottom} navBottom={navBottom} />
     </LayoutGroup>
   )
 }
