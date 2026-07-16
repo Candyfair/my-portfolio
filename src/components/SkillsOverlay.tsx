@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSelection } from '../context/SelectionContext'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 const CARDS = [
   { key: 'languages', title: 'Languages',              w: 170, dx: -205, dy: -100, items: ['French (native)', 'English (bilingual C2)'] },
@@ -20,7 +21,9 @@ interface SkillsOverlayProps {
 
 export function SkillsOverlay({ onCardsBottomChange }: SkillsOverlayProps) {
   const { selectedId, selectedScreenPos } = useSelection()
-  const isOpen = selectedId === 'skills' && selectedScreenPos !== null
+  const isMobile = useIsMobile()
+  // On mobile, skills content is a vertical stack in ContentPanel — no floating overlay
+  const isOpen = selectedId === 'skills' && selectedScreenPos !== null && !isMobile
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {

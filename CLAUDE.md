@@ -35,6 +35,7 @@ Full design reference: see `/design` (Figma exports) and `SPEC.md` for the compl
   - `src/data/` — static data / graph definitions (`graphData.ts`)
   - `src/assets/fonts/` — local WOFF2 files (Space Mono Regular + Bold)
 - Contenu statique (textes, listes de catégories, etc.) : toujours dans un fichier de data séparé, typé, importé par le composant qui l'affiche - jamais codé en dur dans le JSX.
+- Node-specific corrections (e.g. skills overlay) must never modify a shared calculation/reference used by already-validated general behavior (e.g. the content panel's nav/separator references). Isolate with a separate constant or function instead of extending a shared one.
 
 ## Commands
 

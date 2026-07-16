@@ -12,17 +12,19 @@ import {
 import '@xyflow/react/dist/style.css'
 import { forceSimulation, forceLink, forceX, forceY } from 'd3-force'
 import type { Simulation, SimulationNodeDatum } from 'd3-force'
-import { GRAPH_NODES, GRAPH_EDGES } from '../data/graphData'
+import { GRAPH_NODES, GRAPH_NODES_MOBILE, GRAPH_EDGES } from '../data/graphData'
 import { useSelection } from '../context/SelectionContext'
 import { motion } from 'framer-motion'
 
-const DOT_PX = 10
+const DOT_PX = 12
+const TOUCH_TARGET_PX = 44
 const COLOR = '#958B76'
 const DRAG_LINK_STRENGTH = 0.08   // spring that pulls neighbors during drag — tune for elastic lag
 const NEIGHBOR_RETURN_STRENGTH = 0.005  // weak anchor-return force after release — tune for return speed
 
 const hiddenHandle: CSSProperties = {
   opacity: 0,
+  pointerEvents: 'none',
   width: 1,
   height: 1,
   minWidth: 1,
@@ -45,6 +47,14 @@ function DotNode({ id }: NodeProps) {
         opacity: dimmed ? 0.35 : 1, transition: 'opacity 0.3s ease',
       }}
     >
+      {/* Invisible extended hit zone — keeps the visual dot at 12px */}
+      <div style={{
+        position: 'absolute',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: TOUCH_TARGET_PX,
+        height: TOUCH_TARGET_PX,
+      }} />
       <Handle type="target" position={Position.Top} style={hiddenHandle} />
       <motion.div
         initial={false}
@@ -355,12 +365,16 @@ function GraphInner({
 export function PortfolioGraph() {
   const { nodeScreenPosRef, selectedId } = useSelection()
 
+  // Pick initial nodes/anchors once at mount based on viewport width.
+  // Anchors are fixed for the session — breakpoint changes mid-session are not handled.
+  const initialNodes = useRef(window.innerWidth < 768 ? GRAPH_NODES_MOBILE : GRAPH_NODES).current
+
   const anchorsRef = useRef(
-    GRAPH_NODES.map(n => ({ x: n.position.x, y: n.position.y }))
+    initialNodes.map(n => ({ x: n.position.x, y: n.position.y }))
   )
 
   const floatParamsRef = useRef<FloatParams[]>(
-    GRAPH_NODES.map(() => ({
+    initialNodes.map(() => ({
       ax: randBetween(...FLOAT_AMPLITUDE),
       ay: randBetween(...FLOAT_AMPLITUDE),
       fx: randBetween(...FLOAT_FREQ_X),
@@ -374,11 +388,11 @@ export function PortfolioGraph() {
   const draggingNodeIdRef = useRef<string | null>(null)
   const draggingNeighborIdsRef = useRef<string[]>([])
   const settlingRef = useRef<SettlingState | null>(null)
-  const nodeBlendRef = useRef<(BlendState | null)[]>(GRAPH_NODES.map(() => null))
+  const nodeBlendRef = useRef<(BlendState | null)[]>(initialNodes.map(() => null))
 
   const containerRef = useRef<HTMLDivElement>(null)
   const nodeExtentRef = useRef<[[number, number], [number, number]] | null>(null)
-  const [nodes, setNodes, onNodesChange] = useNodesState(GRAPH_NODES)
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
 
   type FrozenSnap = { startX: number; startY: number; startTime: number; targetX: number; targetY: number; snapDuration: number }
   const frozenSnapRef = useRef<FrozenSnap | null>(null)

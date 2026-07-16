@@ -2,8 +2,42 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useSelection } from '../context/SelectionContext'
+import { useIsMobile } from '../hooks/useIsMobile'
 
-const NAV_GAP_PX = 120
+// navBottom now tracks the nav+graph container bottom (see App.tsx navRef), so no extra gap needed
+const NAV_GAP_PX = 0
+
+// Mobile skills: vertical card stack matching MOBILE - Skills.png order
+const SKILLS_MOBILE_CARDS = [
+  { key: 'stack',     title: 'Languages & Frameworks', items: ['JavaScript (ES6+)', 'TypeScript', 'HTML5', 'CSS3', 'React', 'React Native', 'Redux', 'RTK Query', 'react-hook-form', 'Node.js', 'TailwindCSS', 'SASS', 'CSS Modules'] },
+  { key: 'dataviz',   title: 'Data Visualization',     items: ['D3.js (force simulations, custom SVG/HTML rendering)', 'Recharts', 'VictoryChart'] },
+  { key: 'ai',        title: 'AI / LLM',               items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
+  { key: 'testing',   title: 'Testing',                items: ['Jest', 'Vitest', 'React Testing Library'] },
+  { key: 'databases', title: 'Databases',              items: ['SQL', 'PostgreSQL'] },
+  { key: 'ui',        title: 'UI Design',              items: ['Figma', 'Photoshop', 'Illustrator', 'InDesign'] },
+  { key: 'tools',     title: 'Tools & Environment',    items: ['Vite', 'Expo', 'Git', 'GitHub', 'Vercel', 'VSCode', 'agentic tool-assisted development (Claude Code)'] },
+  { key: 'methods',   title: 'Methods',                items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
+  { key: 'languages', title: 'Languages',              items: ['French (native)', 'English (bilingual C2)'] },
+] as const
+
+function SkillsMobileStack() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      {SKILLS_MOBILE_CARDS.map(card => (
+        <div
+          key={card.key}
+          style={{
+            border: '1px solid var(--color-fg)',
+            padding: '6px 10px',
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 2 }}>{card.title}</div>
+          <div>{card.items.join(', ')}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 interface ContentPanelProps {
   separatorBottom: number
@@ -68,6 +102,7 @@ const PLACEHOLDER: Record<string, ReactNode> = {
 
 export function ContentPanel({ separatorBottom, navBottom }: ContentPanelProps) {
   const { selectedId } = useSelection()
+  const isMobile = useIsMobile()
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
 
@@ -114,11 +149,11 @@ export function ContentPanel({ separatorBottom, navBottom }: ContentPanelProps) 
           <div
             ref={contentRef}
             style={{
-              padding: '1rem 0 1.5rem',
-              fontSize: '11px',
+              padding: isMobile ? '1rem 12px 1.5rem' : '1rem 0 1.5rem',
+              fontSize: isMobile ? '14px' : '11px',
             }}
           >
-            {PLACEHOLDER[selectedId]}
+            {isMobile && selectedId === 'skills' ? <SkillsMobileStack /> : PLACEHOLDER[selectedId]}
           </div>
         </motion.div>
       )}

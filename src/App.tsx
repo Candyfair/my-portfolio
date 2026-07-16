@@ -5,6 +5,7 @@ import { PortfolioGraph } from './components/PortfolioGraph'
 import { ContentPanel } from './components/ContentPanel'
 import { SkillsOverlay } from './components/SkillsOverlay'
 import { useSelection } from './context/SelectionContext'
+import { useIsMobile } from './hooks/useIsMobile'
 
 const NAV_ITEMS = ['about', 'portfolio', 'skills', 'articles', 'newsfeed', 'contact', 'socials'] as const
 
@@ -12,13 +13,15 @@ const SKILLS_OVERLAY_BOTTOM_MARGIN = 20  // px gap between lowest skills card an
 
 function App() {
   const { selectedId, selectedScreenPos, select, deselect } = useSelection()
+  const isMobile = useIsMobile()
 
   const separatorRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<HTMLElement>(null)
+  const navRef = useRef<HTMLDivElement>(null)
   const [separatorBottom, setSeparatorBottom] = useState(0)
   const [navBottom, setNavBottom] = useState(0)
   const [skillsCardsBottom, setSkillsCardsBottom] = useState(0)
-  const effectiveSeparatorBottom = Math.max(separatorBottom, skillsCardsBottom + SKILLS_OVERLAY_BOTTOM_MARGIN)
+  // Skills-specific separator: sits below the lowest card. Isolated — never shared with general panel.
+  const skillsSeparatorBottom = Math.max(separatorBottom, skillsCardsBottom + SKILLS_OVERLAY_BOTTOM_MARGIN)
 
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
@@ -80,7 +83,7 @@ function App() {
         >
           {/* Where do you want to go? */}
           <div style={{ marginBottom: '0.75rem' }}>
-            <p style={{ margin: '0 0 4px', fontSize: '11px' }}>Where do you want to go?</p>
+            <p style={{ margin: '0 0 4px', fontSize: isMobile ? '14px' : '11px' }}>Where do you want to go?</p>
             <div
               style={{
                 display: 'flex',
@@ -104,7 +107,7 @@ function App() {
                   outline: 'none',
                   color: 'var(--color-fg)',
                   fontFamily: 'inherit',
-                  fontSize: '11px',
+                  fontSize: isMobile ? '12px' : '11px',
                   fontStyle: 'italic',
                 }}
               />
@@ -116,26 +119,28 @@ function App() {
             )}
           </div>
 
-          {/* Nav + Graph */}
+          {/* Nav + Graph — ref tracks the container bottom for ContentPanel's rise cap (SPEC §7) */}
           <div
+            ref={navRef}
             style={{
               display: 'flex',
               flex: 1,
               minHeight: 0,
-              maxHeight: '45vh',
+              maxHeight: isMobile ? '60vh' : '45vh',
               gap: '0.5rem',
+              flexDirection: isMobile ? 'column' : 'row',
             }}
           >
-            {/* Static nav list */}
+            {/* Static nav list — vertical column on desktop, wrapping row on mobile */}
             <nav
-              ref={navRef}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '6px',
-                minWidth: '90px',
-                fontSize: '11px',
-                paddingTop: '2px',
+                flexDirection: isMobile ? 'row' : 'column',
+                flexWrap: isMobile ? 'wrap' : 'nowrap',
+                gap: isMobile ? '4px 12px' : '6px',
+                minWidth: isMobile ? undefined : '90px',
+                fontSize: isMobile ? '14px' : '11px',
+                paddingTop: isMobile ? 0 : '2px',
                 alignSelf: 'flex-start',
               }}
             >
@@ -156,7 +161,7 @@ function App() {
               ))}
             </nav>
 
-            {/* Graph */}
+            {/* Graph — takes remaining width on desktop, full width below nav on mobile */}
             <div style={{ flex: 1, minHeight: 0 }}>
               <PortfolioGraph />
             </div>
@@ -201,7 +206,10 @@ function App() {
 
       <SkillsOverlay onCardsBottomChange={setSkillsCardsBottom} />
 
-      <ContentPanel separatorBottom={effectiveSeparatorBottom} navBottom={navBottom} />
+      <ContentPanel
+        separatorBottom={selectedId === 'skills' && !isMobile ? skillsSeparatorBottom : separatorBottom}
+        navBottom={navBottom}
+      />
     </LayoutGroup>
   )
 }
