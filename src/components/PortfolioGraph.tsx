@@ -120,6 +120,7 @@ function getNeighborIds(nodeId: string): string[] {
 }
 
 const SKILLS_IDX = GRAPH_NODES.findIndex(n => n.id === 'skills')
+const ARTICLES_IDX = GRAPH_NODES.findIndex(n => n.id === 'articles')
 
 // --- Inner component (inside ReactFlowProvider, can use useReactFlow) ---
 
@@ -134,6 +135,7 @@ interface GraphInnerProps {
   nodeBlendRef: React.MutableRefObject<(BlendState | null)[]>
   containerRef: React.MutableRefObject<HTMLDivElement | null>
   nodeExtentRef: React.MutableRefObject<[[number, number], [number, number]] | null>
+  articlesAnchorScreenPosRef: React.MutableRefObject<{ x: number; y: number } | null>
 }
 
 function GraphInner({
@@ -147,6 +149,7 @@ function GraphInner({
   nodeBlendRef,
   containerRef,
   nodeExtentRef,
+  articlesAnchorScreenPosRef,
 }: GraphInnerProps) {
   const { flowToScreenPosition, screenToFlowPosition } = useReactFlow()
   const flowToScreenRef = useRef(flowToScreenPosition)
@@ -197,6 +200,7 @@ function GraphInner({
       ? flowToScreenRef.current(anchorsRef.current[SKILLS_IDX])
       : flowToScreenRef.current(node.position)
   }
+  articlesAnchorScreenPosRef.current = flowToScreenRef.current(anchorsRef.current[ARTICLES_IDX])
 
   const lastDragPosRef = useRef<{ x: number; y: number } | null>(null)
   const prevDragPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -363,7 +367,7 @@ function GraphInner({
 // --- Outer component ---
 
 export function PortfolioGraph() {
-  const { nodeScreenPosRef, selectedId } = useSelection()
+  const { nodeScreenPosRef, articlesAnchorScreenPosRef, selectedId } = useSelection()
 
   // Pick initial nodes/anchors once at mount based on viewport width.
   // Anchors are fixed for the session — breakpoint changes mid-session are not handled.
@@ -562,6 +566,7 @@ export function PortfolioGraph() {
           nodeBlendRef={nodeBlendRef}
           containerRef={containerRef}
           nodeExtentRef={nodeExtentRef}
+          articlesAnchorScreenPosRef={articlesAnchorScreenPosRef}
         />
       </ReactFlowProvider>
     </div>
