@@ -13,6 +13,10 @@ const ARTICLES_RISE_MARGIN_PX = 50
 const NAV_LIST_MARGIN_PX = 20
 // Minimum gap between the bottom edge of the selected node and the top of the panel (mobile rise cap)
 const PANEL_NODE_CLEARANCE_PX = 20
+// Minimum gap between the bottom of the nav text and the top of the
+// skills panel on mobile (skills has no reliable node-relative anchor
+// for this cap, unlike other rising nodes)
+const SKILLS_MOBILE_NAV_CLEARANCE_PX = 20
 
 // Mobile skills: vertical card stack matching MOBILE - Skills.png order
 const SKILLS_MOBILE_CARDS = [
@@ -121,8 +125,10 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   // Mobile general (not skills): bottom edge of the selected node (screen Y at selection time
   //   + DOT_PX / 2) plus PANEL_NODE_CLEARANCE_PX, but never below separatorBottom (panel can
   //   only rise, never push past natural position).
-  // Mobile skills: falls through to navBottom (skills has its own separatorBottom prop on desktop;
-  //   on mobile the SkillsMobileStack is treated as general content, cap stays at navBottom).
+  // Mobile skills: capped at navListBottom + SKILLS_MOBILE_NAV_CLEARANCE_PX (never above
+  //   separatorBottom). Skills has no reliable node-relative anchor on mobile (its
+  //   selectedScreenPos is a fixed anchor, not live), so it rises relative to the nav
+  //   text instead of the node.
   // Desktop about/portfolio/articles (medium content): capped 50px below articles anchor.
   // Desktop about/portfolio/articles (very long content) + all other desktop nodes: navBottom.
   const desiredRaw = windowH - contentHeight
@@ -130,6 +136,8 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   const articlesRiseCap = articlesAnchorY + ARTICLES_RISE_MARGIN_PX
 
   const riseCap = (() => {
+    if (isMobile && selectedId === 'skills')
+      return Math.min(navListBottom + SKILLS_MOBILE_NAV_CLEARANCE_PX, separatorBottom)
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
       return Math.min(selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX, separatorBottom)
     if (RISING_NODES.has(selectedId ?? '')) {
