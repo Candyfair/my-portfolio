@@ -1,7 +1,7 @@
 import './App.css'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { PortfolioGraph } from './components/PortfolioGraph'
+import { PortfolioGraph, SKILLS_ENLARGED_DOT_PX } from './components/PortfolioGraph'
 import { ContentPanel } from './components/ContentPanel'
 import { SkillsOverlay } from './components/SkillsOverlay'
 import { useSelection } from './context/SelectionContext'
@@ -10,6 +10,13 @@ import { useIsMobile } from './hooks/useIsMobile'
 const NAV_ITEMS = ['about', 'portfolio', 'skills', 'articles', 'newsfeed', 'contact', 'socials'] as const
 
 const SKILLS_OVERLAY_BOTTOM_MARGIN = 20  // px gap between lowest skills card and the dashed separator
+
+// Flying label offset for the skills node only — isolated from the general +14/-6 offset
+// (calibrated for the base DOT_PX radius) because skills renders at SKILLS_ENLARGED_DOT_PX
+// once selected. Same derivation as the general offset: radius + 8px breathing margin
+// horizontally, -radius vertically.
+const SKILLS_LABEL_OFFSET_X_PX = SKILLS_ENLARGED_DOT_PX / 2 + 8
+const SKILLS_LABEL_OFFSET_Y_PX = -(SKILLS_ENLARGED_DOT_PX / 2)
 
 function App() {
   const { selectedId, selectedScreenPos, select, deselect } = useSelection()
@@ -196,8 +203,12 @@ function App() {
             onClick={deselect}
             style={{
               position: 'fixed',
-              left: selectedScreenPos.x + 14,
-              top: selectedScreenPos.y - 6,
+              left: selectedId === 'skills'
+                ? selectedScreenPos.x + SKILLS_LABEL_OFFSET_X_PX
+                : selectedScreenPos.x + 14,
+              top: selectedId === 'skills'
+                ? selectedScreenPos.y + SKILLS_LABEL_OFFSET_Y_PX
+                : selectedScreenPos.y - 6,
               fontSize: '11px',
               fontFamily: 'inherit',
               cursor: 'pointer',
