@@ -18,6 +18,13 @@ const SKILLS_OVERLAY_BOTTOM_MARGIN = 20  // px gap between lowest skills card an
 const SKILLS_LABEL_OFFSET_X_PX = SKILLS_ENLARGED_DOT_PX / 2 + 8
 const SKILLS_LABEL_OFFSET_Y_PX = -(SKILLS_ENLARGED_DOT_PX / 2)
 
+// Flying label offset for the portfolio node on mobile only — isolated from the general
+// +14/-6 offset because the portfolio node sits near the right edge of the mobile graph,
+// so growing the label rightward (the general formula) pushes it off-screen. Anchored to
+// the node's left instead (see translateX(-100%) below), regardless of the node's own size.
+const PORTFOLIO_LABEL_OFFSET_X_PX = 14
+const PORTFOLIO_LABEL_OFFSET_Y_PX = 16
+
 function App() {
   const { selectedId, selectedScreenPos, select, deselect } = useSelection()
   const isMobile = useIsMobile()
@@ -205,18 +212,28 @@ function App() {
               position: 'fixed',
               left: selectedId === 'skills'
                 ? selectedScreenPos.x + SKILLS_LABEL_OFFSET_X_PX
+                : selectedId === 'portfolio' && isMobile
+                ? selectedScreenPos.x - PORTFOLIO_LABEL_OFFSET_X_PX
                 : selectedScreenPos.x + 14,
               top: selectedId === 'skills'
                 ? selectedScreenPos.y + SKILLS_LABEL_OFFSET_Y_PX
+                : selectedId === 'portfolio' && isMobile
+                ? selectedScreenPos.y - PORTFOLIO_LABEL_OFFSET_Y_PX
                 : selectedScreenPos.y - 6,
-              fontSize: '11px',
+              fontSize: isMobile ? '14px' : '11px',
               fontFamily: 'inherit',
               cursor: 'pointer',
               zIndex: 10,
               color: 'var(--color-accent)',
             }}
           >
-            {selectedId}
+            <span style={
+              selectedId === 'portfolio' && isMobile
+                ? { transform: 'translateX(-100%)', display: 'inline-block' }
+                : undefined
+            }>
+              {selectedId}
+            </span>
           </motion.span>
         )}
       </AnimatePresence>
