@@ -13,10 +13,14 @@ const ARTICLES_RISE_MARGIN_PX = 50
 const NAV_LIST_MARGIN_PX = 20
 // Minimum gap between the bottom edge of the selected node and the top of the panel (mobile rise cap)
 const PANEL_NODE_CLEARANCE_PX = 20
-// Minimum gap between the bottom of the nav text and the top of the
-// skills panel on mobile (skills has no reliable node-relative anchor
-// for this cap, unlike other rising nodes)
-const SKILLS_MOBILE_NAV_CLEARANCE_PX = 20
+// Skills node grows to DOT_PX * 3 on selection (see PortfolioGraph.tsx
+// DotNode animate block) — this is the effective screen radius used
+// for its mobile rise cap.
+const SKILLS_NODE_RADIUS_PX = (DOT_PX * 3) / 2
+// Extra clearance below the enlarged skills node before the panel
+// starts, calibrated against MOBILE__Skills.png mockup (~75px total
+// gap from node center minus SKILLS_NODE_RADIUS_PX)
+const SKILLS_MOBILE_NODE_CLEARANCE_PX = 75
 
 // Mobile skills: vertical card stack matching MOBILE - Skills.png order
 const SKILLS_MOBILE_CARDS = [
@@ -125,10 +129,9 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   // Mobile general (not skills): bottom edge of the selected node (screen Y at selection time
   //   + DOT_PX / 2) plus PANEL_NODE_CLEARANCE_PX, but never below separatorBottom (panel can
   //   only rise, never push past natural position).
-  // Mobile skills: capped at navListBottom + SKILLS_MOBILE_NAV_CLEARANCE_PX (never above
-  //   separatorBottom). Skills has no reliable node-relative anchor on mobile (its
-  //   selectedScreenPos is a fixed anchor, not live), so it rises relative to the nav
-  //   text instead of the node.
+  // Mobile skills: same node-relative pattern as the general mobile case, but using the
+  //   enlarged (DOT_PX * 3) node radius plus SKILLS_MOBILE_NODE_CLEARANCE_PX, since the
+  //   node visually grows by 3x on selection (see PortfolioGraph.tsx DotNode).
   // Desktop about/portfolio/articles (medium content): capped 50px below articles anchor.
   // Desktop about/portfolio/articles (very long content) + all other desktop nodes: navBottom.
   const desiredRaw = windowH - contentHeight
@@ -136,8 +139,11 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   const articlesRiseCap = articlesAnchorY + ARTICLES_RISE_MARGIN_PX
 
   const riseCap = (() => {
-    if (isMobile && selectedId === 'skills')
-      return Math.min(navListBottom + SKILLS_MOBILE_NAV_CLEARANCE_PX, separatorBottom)
+    if (isMobile && selectedId === 'skills' && selectedScreenPos !== null)
+      return Math.min(
+        selectedScreenPos.y + SKILLS_NODE_RADIUS_PX + SKILLS_MOBILE_NODE_CLEARANCE_PX,
+        separatorBottom
+      )
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
       return Math.min(selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX, separatorBottom)
     if (RISING_NODES.has(selectedId ?? '')) {
