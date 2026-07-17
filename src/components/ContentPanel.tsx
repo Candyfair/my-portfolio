@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useSelection } from '../context/SelectionContext'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { DOT_PX } from './PortfolioGraph'
 
 // navBottom now tracks the nav+graph container bottom (see App.tsx navRef), so no extra gap needed
 const NAV_GAP_PX = 0
@@ -10,6 +11,8 @@ const NAV_GAP_PX = 0
 const RISING_NODES = new Set(['about', 'portfolio', 'articles'])
 const ARTICLES_RISE_MARGIN_PX = 50
 const NAV_LIST_MARGIN_PX = 20
+// Minimum gap between the bottom edge of the selected node and the top of the panel (mobile rise cap)
+const PANEL_NODE_CLEARANCE_PX = 20
 
 // Mobile skills: vertical card stack matching MOBILE - Skills.png order
 const SKILLS_MOBILE_CARDS = [
@@ -115,8 +118,9 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   const windowH = window.innerHeight
 
   // Rise cap (regime 3 floor): minimum panelTop value.
-  // Mobile general (not skills): selected node's screen Y at selection time minus 20px,
-  //   but never below separatorBottom (panel can only rise, never push past natural position).
+  // Mobile general (not skills): bottom edge of the selected node (screen Y at selection time
+  //   + DOT_PX / 2) plus PANEL_NODE_CLEARANCE_PX, but never below separatorBottom (panel can
+  //   only rise, never push past natural position).
   // Mobile skills: falls through to navBottom (skills has its own separatorBottom prop on desktop;
   //   on mobile the SkillsMobileStack is treated as general content, cap stays at navBottom).
   // Desktop about/portfolio/articles (medium content): capped 50px below articles anchor.
@@ -127,7 +131,7 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
 
   const riseCap = (() => {
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
-      return Math.min(selectedScreenPos.y - 20, separatorBottom)
+      return Math.min(selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX, separatorBottom)
     if (RISING_NODES.has(selectedId ?? '')) {
       if (desiredRaw >= articlesRiseCap) return articlesRiseCap
       return navListBottom + NAV_LIST_MARGIN_PX

@@ -16,7 +16,7 @@ import { GRAPH_NODES, GRAPH_NODES_MOBILE, GRAPH_EDGES } from '../data/graphData'
 import { useSelection } from '../context/SelectionContext'
 import { motion } from 'framer-motion'
 
-const DOT_PX = 12
+export const DOT_PX = 12
 const TOUCH_TARGET_PX = 44
 const COLOR = '#958B76'
 const DRAG_LINK_STRENGTH = 0.08   // spring that pulls neighbors during drag — tune for elastic lag
