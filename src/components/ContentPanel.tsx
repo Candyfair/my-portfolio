@@ -9,6 +9,7 @@ const NAV_GAP_PX = 0
 
 const RISING_NODES = new Set(['about', 'portfolio', 'articles'])
 const ARTICLES_RISE_MARGIN_PX = 50
+const NAV_LIST_MARGIN_PX = 20
 
 // Mobile skills: vertical card stack matching MOBILE - Skills.png order
 const SKILLS_MOBILE_CARDS = [
@@ -45,6 +46,7 @@ function SkillsMobileStack() {
 interface ContentPanelProps {
   separatorBottom: number
   navBottom: number
+  navListBottom: number
 }
 
 const PLACEHOLDER: Record<string, ReactNode> = {
@@ -93,7 +95,7 @@ const PLACEHOLDER: Record<string, ReactNode> = {
   socials:   <p>Placeholder — links.</p>,
 }
 
-export function ContentPanel({ separatorBottom, navBottom }: ContentPanelProps) {
+export function ContentPanel({ separatorBottom, navBottom, navListBottom }: ContentPanelProps) {
   const { selectedId, selectedScreenPos, articlesAnchorScreenPosRef } = useSelection()
   const isMobile = useIsMobile()
   const contentRef = useRef<HTMLDivElement>(null)
@@ -126,8 +128,10 @@ export function ContentPanel({ separatorBottom, navBottom }: ContentPanelProps) 
   const riseCap = (() => {
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
       return Math.min(selectedScreenPos.y - 20, separatorBottom)
-    if (RISING_NODES.has(selectedId ?? '') && desiredRaw >= articlesRiseCap)
-      return articlesRiseCap
+    if (RISING_NODES.has(selectedId ?? '')) {
+      if (desiredRaw >= articlesRiseCap) return articlesRiseCap
+      return navListBottom + NAV_LIST_MARGIN_PX
+    }
     return navBottom + NAV_GAP_PX
   })()
 

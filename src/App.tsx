@@ -17,8 +17,10 @@ function App() {
 
   const separatorRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLDivElement>(null)
+  const navListRef = useRef<HTMLElement>(null)
   const [separatorBottom, setSeparatorBottom] = useState(0)
   const [navBottom, setNavBottom] = useState(0)
+  const [navListBottom, setNavListBottom] = useState(0)
   const [skillsCardsBottom, setSkillsCardsBottom] = useState(0)
   // Skills-specific separator: sits below the lowest card. Isolated — never shared with general panel.
   const skillsSeparatorBottom = Math.max(separatorBottom, skillsCardsBottom + SKILLS_OVERLAY_BOTTOM_MARGIN)
@@ -51,6 +53,9 @@ function App() {
       }
       if (navRef.current) {
         setNavBottom(navRef.current.getBoundingClientRect().bottom)
+      }
+      if (navListRef.current) {
+        setNavListBottom(navListRef.current.getBoundingClientRect().bottom)
       }
     }
     measure()
@@ -133,6 +138,7 @@ function App() {
           >
             {/* Static nav list — vertical column on desktop, wrapping row on mobile */}
             <nav
+              ref={navListRef}
               style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'row' : 'column',
@@ -209,6 +215,7 @@ function App() {
       <ContentPanel
         separatorBottom={selectedId === 'skills' && !isMobile ? skillsSeparatorBottom : separatorBottom}
         navBottom={navBottom}
+        navListBottom={navListBottom}
       />
     </LayoutGroup>
   )
