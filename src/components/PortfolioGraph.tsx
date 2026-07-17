@@ -17,6 +17,8 @@ import { useSelection } from '../context/SelectionContext'
 import { motion } from 'framer-motion'
 
 export const DOT_PX = 12
+export const SKILLS_SCALE_FACTOR = 3
+export const SKILLS_ENLARGED_DOT_PX = DOT_PX * SKILLS_SCALE_FACTOR
 const TOUCH_TARGET_PX = 44
 const COLOR = '#958B76'
 const DRAG_LINK_STRENGTH = 0.08   // spring that pulls neighbors during drag — tune for elastic lag
@@ -59,11 +61,16 @@ function DotNode({ id }: NodeProps) {
       <motion.div
         initial={false}
         animate={{
-          width:  isSelected && id === 'skills' ? DOT_PX * 3 : DOT_PX,
-          height: isSelected && id === 'skills' ? DOT_PX * 3 : DOT_PX,
+          width:  isSelected && id === 'skills' ? SKILLS_ENLARGED_DOT_PX : DOT_PX,
+          height: isSelected && id === 'skills' ? SKILLS_ENLARGED_DOT_PX : DOT_PX,
         }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          translateX: '-50%',
+          translateY: '-50%',
           borderRadius: '50%',
           backgroundColor: isSelected ? 'var(--color-accent)' : COLOR,
           transition: 'background-color 0.2s ease',
