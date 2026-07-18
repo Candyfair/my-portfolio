@@ -104,27 +104,14 @@ error message below the input, cleared on next input change.
 - Deselecting skills: node shrinks back to its original size/color with animation; the "skills" label reverses its slide-to-orange animation back into the nav list (same as §6, general case).
 - Overlay position must track the skills node's live screen coordinates if the user pans/zooms the canvas while it's open (same principle as a zoom-aware label layer).
 
-## 9. Contact Form
+## 9. Contact Form — special behavior
 
-### Contact Form — Implementation Decision (2026-07-18)
-
-**Approach:** Web3Forms (fetch POST to api.web3forms.com/submit) + native HTML5 form validation.
-
-**Why Web3Forms over EmailJS:** EmailJS requires connecting a full email account (OAuth or SMTP). This is incompatible with Proton Mail, whose SMTP access requires a paid plan and a local Bridge app running continuously — a model built for desktop mail clients, not cloud form services. Web3Forms avoids this entirely: it only requires verifying a destination email address via a confirmation link, which works with any provider, Proton included.
-
-**Why Web3Forms over Formspree:** both work the same way (destination-only, no account connection), but Web3Forms' free tier allows 250 submissions/month vs Formspree's 50, and setup requires no password — just an access key. Trade-off accepted: no submission dashboard/archive, messages only arrive by email. Acceptable for expected volume on a portfolio site.
-
-**Why no react-hook-form:** the form has only 2 fields (email, message) with no cross-field validation. Native HTML5 attributes (`required`, `type="email"`, `minLength`) cover validation needs.
-
-**Access key handling:** WEB3FORMS_ACCESS_KEY is a named constant in the contact form component, not an environment variable. Web3Forms designs this key to be public client-side (it functions as an alias to the destination email, not a secret) — no need for `.env` or gitignore protection.
-
-**State management:** plain `useState`, 4 states — `idle` / `sending` / `success` / `error`.
-
-### Contact Form — Success/Error Feedback (2026-07-18)
-
-**Success:** floating toast, absolutely positioned above the form (scoped to `ContactForm.tsx`, not `ContentPanel.tsx`), styled after SkillsOverlay's card convention, fade in/out via Framer Motion, auto-dismiss after `CONTACT_TOAST_DISPLAY_DURATION_MS`.
-
-**Error:** stays inline at its original position, styled with a new --color-error CSS variable added alongside `--color-bg`/`--color-fg`/`--color-accent`.
+- Submission handled via Web3Forms (fetch POST to api.web3forms.com/submit) instead of EmailJS or Formspree. EmailJS requires connecting a full email account (OAuth/SMTP), incompatible with Proton Mail's Bridge model (paid-only, requires a local desktop app rather than a cloud-reachable SMTP endpoint). Web3Forms only requires verifying a destination email address, works with any provider. Preferred over Formspree for its higher free-tier volume (250 vs 50 submissions/month) and simpler setup (access key, no password) — trade-off accepted: no submission dashboard/archive, acceptable for expected volume.
+- No react-hook-form: only 2 fields (email, message), no cross-field validation. Native HTML5 attributes (`required`, `type="email"`, `minLength`) cover validation, enforced via `form.reportValidity()`. State handled with plain `useState`, 4 states: `idle` / `sending` / `success` / `error`.
+- `WEB3FORMS_ACCESS_KEY` is a named constant inside `ContactForm.tsx`, not an env variable — Web3Forms designs this key to be public client-side (acts as an alias to the destination email, not a secret).
+- Success feedback: floating toast, styled after SkillsOverlay's card convention (border, padding, font), fade in/out via Framer Motion, auto-dismiss after `CONTACT_TOAST_DISPLAY_DURATION_MS`. Scoped entirely to `ContactForm.tsx` — `ContentPanel.tsx` untouched.
+- Toast is positioned `top: 0` over the form, not floating above it (`bottom: '100%'` was the initial attempt, but the panel's shared height-regime system clips at y=0 via both `overflowY: auto` and an animated `clip-path` — nothing renders above that edge, in-flow or not).
+- Error feedback stays inline at its original position under the button (not a toast), styled via a new `--color-error` CSS variable added alongside `--color-bg`/`--color-fg`/`--color-accent`.
 
 ## 10. Project case-study sub-page
 

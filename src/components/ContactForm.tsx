@@ -36,20 +36,23 @@ const inputStyle: CSSProperties = {
   width: '100%',
 }
 
-// Same visual style as the skills overlay cards (SkillsOverlay.tsx), reused as-is
+// Same visual style as the skills overlay cards (SkillsOverlay.tsx), reused as-is.
+// Positioned as an overlay on top of the form (not above the panel box) so it
+// stays within the panel's overflowY/clip-path bounds — see ContentPanel.tsx.
 const toastStyle: CSSProperties = {
   position: 'absolute',
-  bottom: '100%',
+  top: '8px',
   left: '50%',
   transform: 'translateX(-50%)',
-  marginBottom: '12px',
+  zIndex: 1,
   width: 'max-content',
-  maxWidth: '90%',
+  maxWidth: '60%',
   fontFamily: 'inherit',
   fontSize: '11px',
   color: 'var(--color-fg)',
   background: 'var(--color-bg)',
   border: '1px solid var(--color-fg)',
+  boxShadow: `0px 0px 25px 3px rgba(0,0,0,0.15)`,
   padding: '6px 10px',
 }
 
