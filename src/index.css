@@ -20,6 +20,7 @@
   --color-bg: #b8b2a8;
   --color-fg: #6e6a61;
   --color-accent: #c46537;
+  --color-error: #b3261e;
 }
 
 *, *::before, *::after {
