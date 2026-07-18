@@ -113,6 +113,19 @@ error message below the input, cleared on next input change.
 - Toast is positioned `top: 0` over the form, not floating above it (`bottom: '100%'` was the initial attempt, but the panel's shared height-regime system clips at y=0 via both `overflowY: auto` and an animated `clip-path` — nothing renders above that edge, in-flow or not).
 - Error feedback stays inline at its original position under the button (not a toast), styled via a new `--color-error` CSS variable added alongside `--color-bg`/`--color-fg`/`--color-accent`.
 
+## 9bis. Newsfeed — special behavior
+
+- Content is sourced from the Ghost Content API (`https://candygetshandy.com/ghost/api/content/posts/`), fetching the 6 latest posts tagged `#newsfeed` (title + published date only, via `fields=id,slug,title,published_at`). Native `fetch`, no `@tryghost/content-api` dependency — same rationale as Web3Forms for the contact form: no build-time SDK needed for a couple of read-only calls.
+- `GHOST_CONTENT_API_KEY` is a named constant inside `ghostClient.ts`, not an env variable — Ghost designs Content API keys to be public/client-safe (read-only, scoped to published content), same trust model as `WEB3FORMS_ACCESS_KEY`.
+- Requests pin the API response format to the live Ghost install (6.42.0) via an `Accept-Version: v6.42` header, so future Ghost upgrades on the CMS side don't silently change the response shape underneath the client.
+- `getPostBySlug(slug)` is implemented in `ghostClient.ts` alongside `getPostsByTag` but not yet called anywhere — reserved for the future `articles`/`portfolio` Ghost integration (still unscoped, see §12).
+- State: plain `useState`, 3 states: `loading` / `success` / `error` — no `idle`, the fetch starts immediately on mount.
+- Empty state (`success` with zero posts) shows a static "Nothing here yet." message from `newsfeedContent.ts`, distinct from the `error` state.
+- The title is followed by a permanent animated ellipsis (`.newsfeed-dots`, CSS `steps(4, end)` animation, `infinite`) — a decorative terminal-cursor flourish, not a loading indicator; it animates regardless of fetch status.
+- Styled via three new CSS variables (`--newsfeed-bg`, `--newsfeed-accent`, `--newsfeed-legend`) added alongside the existing `--color-*` variables, following the same precedent as `--color-error`. All other styling stays inline `CSSProperties`, matching `ContactForm.tsx`'s convention.
+- Desktop: date and title render inline on one line per post. Mobile (`useIsMobile`, existing 768px breakpoint): date and title stack on two separate lines.
+- Scoped entirely to `NewsfeedContent.tsx` / `ghostClient.ts` / `formatPostDate.ts` / `newsfeedContent.ts` — `ContentPanel.tsx` only swaps its placeholder for `<NewsfeedContent />`, the 3-regime height system (§7) is untouched.
+
 ## 10. Project case-study sub-page
 
 Clicking a project row in the `portfolio` table opens a full case-study view (text + screenshots, see `Portfolio__Page_de_projet.png`).
@@ -127,7 +140,7 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 
 ## 12. Open items — do not assume, ask before implementing
 
-- `newsfeed` content and `articles` list will be sourced from the Ghost blog API (not static/hardcoded). `portfolio` case-studies (§9) will also be sourced from Ghost. Integration details (Ghost Content API setup, data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session.
+- `articles` list and `portfolio` case-studies (§9) will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` is now implemented — see §9bis.)
 - Exact stagger order for skills cards
 - Exact floating animation parameters (amplitude/frequency ranges)
 - Behavior of the project case-study sub-page (§9)
@@ -136,5 +149,5 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - Exact color/design tokens beyond grey (default) / orange (active)
 - Input field visual styling does not yet match the mockup (colors, border, font) — pending a dedicated visual-polish pass.
 - Diagnostic sur l'utilisation de Tailwind dans le projet
-
+- Font size for mobile must be 14px at all times - except inside the input field where it is 12px
  

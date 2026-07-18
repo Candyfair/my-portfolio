@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { useSelection } from '../context/SelectionContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { ContactForm } from './ContactForm'
+import { NewsfeedContent } from './NewsfeedContent'
 import { DOT_PX, SKILLS_ENLARGED_DOT_PX } from './PortfolioGraph'
 
 // navBottom now tracks the nav+graph container bottom (see App.tsx navRef), so no extra gap needed
@@ -102,7 +103,7 @@ const PLACEHOLDER: Record<string, ReactNode> = {
       <p>Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit, vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum. Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia turpis. Integer finibus erat eu purus gravida, sit amet cursus sem hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae in ligula. Duis euismod vulputate ligula a malesuada.</p>
     </>
   ),
-  newsfeed:  <p>Placeholder — newsfeed log.</p>,
+  newsfeed:  <NewsfeedContent />,
   contact:   <ContactForm />,
   socials:   <p>Placeholder — links.</p>,
 }

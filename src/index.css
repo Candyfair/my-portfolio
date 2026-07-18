@@ -21,6 +21,36 @@
   --color-fg: #6e6a61;
   --color-accent: #c46537;
   --color-error: #b3261e;
+  --newsfeed-bg: #1C2832;
+  --newsfeed-accent: #00B593;
+  --newsfeed-legend: #958B76;
+}
+
+.newsfeed-dots::after {
+  content: '...';
+  display: inline-block;
+  font-size: 14px;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: newsfeed-ellipsis steps(1, end) 1000ms infinite;
+}
+
+@keyframes newsfeed-ellipsis {
+  0%   { width: 0; }
+  25%  { width: 1ch; }
+  50%  { width: 2ch; }
+  75%  { width: 3ch; }
+  100% { width: 0; }
+}
+
+.newsfeed-legend-link {
+  color: var(--newsfeed-legend);
+  transition: color 150ms ease;
+}
+
+.newsfeed-legend-link:hover {
+  color: var(--color-accent);
 }
 
 *, *::before, *::after {
