@@ -126,6 +126,17 @@ error message below the input, cleared on next input change.
 - Desktop: date and title render inline on one line per post. Mobile (`useIsMobile`, existing 768px breakpoint): date and title stack on two separate lines.
 - Scoped entirely to `NewsfeedContent.tsx` / `ghostClient.ts` / `formatPostDate.ts` / `newsfeedContent.ts` — `ContentPanel.tsx` only swaps its placeholder for `<NewsfeedContent />`, the 3-regime height system (§7) is untouched.
 
+## 9ter. Articles — special behavior
+
+- Content is sourced from the Ghost Content API, same client as newsfeed: fetches posts tagged `ux-coding` via `getPostsByTag('ux-coding', 20)` (title + published date only). No new API client code — `ghostClient.ts` is reused unmodified.
+- Rendered as a table (per §7: `articles` → table, distinct from newsfeed's terminal-log box), 3 columns: `#` (row position in the fetched order, not a Ghost field), `Title`, `Date`.
+- Mobile (`useIsMobile`, existing 768px breakpoint, no new breakpoint introduced): the `Date` column (header + cells) is hidden, leaving `#` and `Title`.
+- State: same 3-state model as newsfeed (`loading` / `success` / `error`, plain `useState`, no `idle`) — fetch starts immediately on mount, same cancellation-flag pattern.
+- Empty (`success` with zero posts) and error copy come from `articlesContent.ts`, same separation of static UI copy vs. live post data as `newsfeedContent.ts`.
+- Rows show a pointer cursor and a hover state (text color shifts to `--color-accent`, via a `.articles-row` CSS class — same technique as `.newsfeed-legend-link:hover`, an inline color would beat `:hover` regardless of specificity) but have no click handler yet — explicitly deferred, marked with a `TODO` comment in `ArticlesContent.tsx`.
+- No new CSS custom properties — styled with the existing `--color-fg` / `--color-accent` / `--color-error` variables, unlike newsfeed's dedicated `--newsfeed-*` set.
+- Scoped entirely to `ArticlesContent.tsx` / `articlesContent.ts` — `ContentPanel.tsx` only swaps its placeholder for `<ArticlesContent />`, the 3-regime height system (§7) is untouched.
+
 ## 10. Project case-study sub-page
 
 Clicking a project row in the `portfolio` table opens a full case-study view (text + screenshots, see `Portfolio__Page_de_projet.png`).
@@ -140,7 +151,7 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 
 ## 12. Open items — do not assume, ask before implementing
 
-- `articles` list and `portfolio` case-studies (§9) will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` is now implemented — see §9bis.)
+- `portfolio` case-studies will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` and `articles` are now implemented — see §9bis and §9ter.)
 - Exact stagger order for skills cards
 - Exact floating animation parameters (amplitude/frequency ranges)
 - Behavior of the project case-study sub-page (§9)

@@ -24,6 +24,8 @@
   --newsfeed-bg: #1C2832;
   --newsfeed-accent: #00B593;
   --newsfeed-legend: #958B76;
+  --articles-table-bg: #B5AEA1;
+  --articles-table-border: #A29C8E;
 }
 
 .newsfeed-dots::after {
@@ -50,6 +52,15 @@
 }
 
 .newsfeed-legend-link:hover {
+  color: var(--color-accent);
+}
+
+.articles-row {
+  color: var(--color-fg);
+  transition: color 150ms ease;
+}
+
+.articles-row:hover {
   color: var(--color-accent);
 }
 
