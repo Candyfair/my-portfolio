@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { getPostBySlug, getPostsByTag } from '../lib/ghostClient'
 import type { GhostPost } from '../lib/ghostClient'
 import { formatPostDate } from '../lib/formatPostDate'
+import { filterGhostContentHtml } from '../lib/ghostContentFilters'
 import { ARTICLES_CONTENT } from '../data/articlesContent'
 import { useIsMobile } from '../hooks/useIsMobile'
 
@@ -83,24 +84,20 @@ const errorStyle: CSSProperties = {
   margin: '8px 0 0',
 }
 
+const detailHeaderStyle: CSSProperties = {
+  margin: '0 0 12px',
+  fontWeight: 700,
+  color: 'var(--color-accent)',
+}
+
 const backLinkStyle: CSSProperties = {
-  display: 'block',
   border: 'none',
   background: 'none',
   padding: 0,
-  margin: '0 0 12px',
+  margin: 0,
   font: 'inherit',
+  color: 'inherit',
   cursor: 'pointer',
-}
-
-const detailTitleStyle: CSSProperties = {
-  fontWeight: 700,
-  margin: '0 0 4px',
-}
-
-const detailDateStyle: CSSProperties = {
-  margin: '0 0 12px',
-  whiteSpace: 'nowrap',
 }
 
 export function ArticlesContent() {
@@ -168,22 +165,28 @@ export function ArticlesContent() {
   if (view === 'detail') {
     return (
       <div style={wrapperStyle}>
-        <button
-          type="button"
-          className="articles-back-link"
-          style={backLinkStyle}
-          onClick={backToList}
-        >
-          {ARTICLES_CONTENT.backLinkLabel}
-        </button>
+        <h1 style={detailHeaderStyle}>
+          {ARTICLES_CONTENT.backLinkPrefix}
+          <button
+            type="button"
+            className="articles-back-link"
+            style={backLinkStyle}
+            onClick={backToList}
+          >
+            {ARTICLES_CONTENT.backLinkWord}
+          </button>
+          {detailStatus === 'success' && detailPost && (
+            <span>
+              {ARTICLES_CONTENT.backLinkSeparator}{detailPost.title} ({new Date(detailPost.published_at).getFullYear()})
+            </span>
+          )}
+        </h1>
 
         {detailStatus === 'loading' && <p style={emptyStyle}>{ARTICLES_CONTENT.detailLoadingMessage}</p>}
 
         {detailStatus === 'success' && detailPost && (
           <article>
-            <h2 style={detailTitleStyle}>{detailPost.title}</h2>
-            <p style={detailDateStyle}>{formatPostDate(detailPost.published_at)}</p>
-            <div className="article-body" dangerouslySetInnerHTML={{ __html: detailPost.html ?? '' }} />
+            <div className="article-body" dangerouslySetInnerHTML={{ __html: filterGhostContentHtml(detailPost.html ?? '') }} />
           </article>
         )}
 
