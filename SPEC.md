@@ -5,6 +5,7 @@ Living document. Update it whenever a design decision changes — this is the so
 ## 1. Overview
 
 Single-page app. Layout, top to bottom:
+
 1. "Where do you want to go?" input (free text or node selection)
 2. Static nav list of the 7 section names
 3. Force-directed graph (React Flow), ~30-50% of viewport height
@@ -18,7 +19,7 @@ Vite + React + TypeScript, React Flow, d3-force (drag physics only), TailwindCSS
 ## 3. Graph structure
 
 7 primary nodes: `about`, `portfolio`, `skills`, `articles`, `newsfeed`, `contact`, `socials`.
-Positions are fixed/deterministic at init, matching the constellation layout shown in the Figma mockups (Home.png / MOBILE__Home.png) — NOT computed by a live force layout.
+Positions are fixed/deterministic at init, matching the constellation layout shown in the Figma mockups (Home.png / MOBILE\_\_Home.png) — NOT computed by a live force layout.
 
 6 edges (directed, source → target):
 `about → portfolio`, `portfolio → skills`, `skills → contact`, `skills → articles`, `articles → newsfeed`, `newsfeed → socials`.
@@ -37,23 +38,27 @@ Positions are fixed/deterministic at init, matching the constellation layout sho
 - `velocityDecay = 0.4` (moderate friction).
 
 **During drag:**
+
 - Dragged node is pinned (`fx`/`fy`) at its real cursor position, updated each `onNodeDrag`. React Flow owns its rendered position; the pin keeps the sim in sync.
 - Neighbors are connected to the pinned node via `forceLink` (`DRAG_LINK_STRENGTH = 0.08`), computed at the natural link distance measured at drag start. They trail behind with elastic lag — links visibly stretch.
 - `autoPanOnNodeDrag = false` to prevent the viewport shifting when a node approaches the canvas edge.
 - Node positions are clamped to the container bounds (`nodeExtent`) via `screenToFlowPosition`, updated on `onInit` and `ResizeObserver`.
 
 **On drag release (`onNodeDragStop`):**
+
 - Pin is released (`fx`/`fy = null`); dragged node receives the velocity captured from the last two `onNodeDrag` positions (`Δpos × 0.4 scaling`).
 - `forceLink` is removed. Weak `forceX`/`forceY` forces (`NEIGHBOR_RETURN_STRENGTH = 0.005`) are applied uniformly to all nodes in the sim — dragged node and neighbors alike — each pulled toward its **original** anchor. The dragged node returns to its original position; it does not keep its drop position as a new anchor.
 - No additional velocity impulse is given to neighbors at release — they carry whatever velocity they accumulated from the link spring during drag.
 
 **Settling (single phase):**
+
 - All nodes converge toward their original anchors under the return forces.
 - `settlingRef` is cleared when every node's velocity falls below `0.02 px/frame`.
 - All node positions written by the sim are passed through `clampToContainer()` before being set on the React Flow node state.
 - Nodes not involved in the drag continue idle floating (§4) uninterrupted throughout.
 
 **New drag interrupting active settling:**
+
 - When a second drag starts while nodes are still settling from a prior drag, those nodes would otherwise snap abruptly to their anchor (falling cold into the idle-float formula). Instead:
   - Each node from the interrupted sim records a `BlendState` (its live sim position at interruption time).
   - For 300 ms, that node interpolates from its captured position toward the live idle-float curve using an ease-out cubic, then resumes idle float seamlessly. No domain constraint — works regardless of how far the node was from its anchor.
@@ -165,4 +170,5 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - The `"> nodename"` header pattern appears in the Figma mockups as a header for every panel (portfolio, newsfeed, contact, etc.), but is not yet implemented as a shared/reusable element in `ContentPanel.tsx`. It currently exists only locally in `ArticlesContent.tsx`, for the articles detail view's back button (§9ter) — generalizing it across all panels is deferred to a dedicated session.
 - Diagnostic sur l'utilisation de Tailwind dans le projet
 - Font size for mobile must be 14px at all times - except inside the input field where it is 12px
- 
+- Repenser l'affichage mobile du panneau de contenu (testé sur iPhone 12) :
+  le panneau se positionne correctement sous le nœud sélectionné mais n'occupe que le tiers inférieur de l'écran, rendant la lecture d'un article difficile. Piste retenue : faire remonter le panneau jusque sous le menu de navigation (1-2 lignes en mobile), quitte à recouvrir le nœud sélectionné — comportement déjà en place en desktop, où le nœud reste accessible via l'en-tête "> nomdunoeud" au-dessus du contenu.

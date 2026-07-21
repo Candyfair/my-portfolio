@@ -27,6 +27,7 @@
   --articles-table-bg: #b5aea1;
   --articles-table-border: #a29c8e;
   --content-block-gap: 16px;
+  --article-media-rest-opacity: 0.5;
 }
 
 p {
@@ -91,6 +92,28 @@ p {
   max-width: 100%;
   height: auto;
   margin: var(--content-block-gap) 0;
+}
+
+.article-body img,
+.article-body video {
+  filter: grayscale(85%) sepia(15%) brightness(0.95) contrast(0.92);
+  opacity: var(--article-media-rest-opacity);
+  transition: filter 0.3s ease, opacity 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .article-body img:hover,
+  .article-body video:hover {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+.article-body img:active,
+.article-body video:active {
+  filter: none;
+  opacity: 1;
 }
 
 .article-body figure {
