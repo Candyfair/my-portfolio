@@ -7,6 +7,7 @@ import { filterGhostContentHtml } from '../lib/ghostContentFilters'
 import { ARTICLES_CONTENT } from '../data/articlesContent'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSelection } from '../context/SelectionContext'
+import { PanelHeader } from './PanelHeader'
 
 const ARTICLES_TAG = 'ux-coding'
 const ARTICLES_POST_LIMIT = 20
@@ -85,22 +86,6 @@ const emptyStyle: CSSProperties = {
 const errorStyle: CSSProperties = {
   color: 'var(--color-error)',
   margin: '8px 0 0',
-}
-
-const detailHeaderStyle: CSSProperties = {
-  margin: '0 0 12px',
-  fontWeight: 700,
-  color: 'var(--color-accent)',
-}
-
-const backLinkStyle: CSSProperties = {
-  border: 'none',
-  background: 'none',
-  padding: 0,
-  margin: 0,
-  font: 'inherit',
-  color: 'inherit',
-  cursor: 'pointer',
 }
 
 const detailLoadingStyle: CSSProperties = {
@@ -193,22 +178,15 @@ export function ArticlesContent() {
   if (view === 'detail') {
     return (
       <div style={wrapperStyle}>
-        <h1 style={detailHeaderStyle}>
-          {ARTICLES_CONTENT.backLinkPrefix}
-          <button
-            type="button"
-            className="articles-back-link"
-            style={backLinkStyle}
-            onClick={backToList}
-          >
-            {ARTICLES_CONTENT.backLinkWord}
-          </button>
-          {detailStatus === 'success' && detailPost && (
-            <span>
-              {ARTICLES_CONTENT.backLinkSeparator}{detailPost.title} ({new Date(detailPost.published_at).getFullYear()})
-            </span>
-          )}
-        </h1>
+        <PanelHeader
+          nodeId={ARTICLES_CONTENT.backLinkWord}
+          onLabelClick={view === 'detail' ? backToList : undefined}
+          detail={
+            detailStatus === 'success' && detailPost
+              ? `${detailPost.title} (${new Date(detailPost.published_at).getFullYear()})`
+              : undefined
+          }
+        />
 
         {detailStatus === 'loading' && (
           <div style={detailLoadingStyle}>
@@ -229,6 +207,8 @@ export function ArticlesContent() {
 
   return (
     <div>
+      <PanelHeader nodeId={ARTICLES_CONTENT.backLinkWord} />
+
       <div style={wrapperStyle}>
         <table style={tableStyle}>
           <thead>

@@ -102,7 +102,7 @@ function App() {
         >
           {/* Where do you want to go? */}
           <div style={{ marginBottom: '0.75rem' }}>
-            <p style={{ margin: '0 0 4px', fontSize: isMobile ? '14px' : '11px' }}>Where do you want to go?</p>
+            <p style={{ margin: '0 0 4px' }}>Where do you want to go?</p>
             <div
               style={{
                 display: 'flex',
@@ -126,13 +126,13 @@ function App() {
                   outline: 'none',
                   color: 'var(--color-fg)',
                   fontFamily: 'inherit',
-                  fontSize: isMobile ? '12px' : '11px',
+                  fontSize: isMobile ? '12px' : '14px',
                   fontStyle: 'italic',
                 }}
               />
             </div>
             {inputError && (
-              <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--color-accent)' }}>
+              <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--color-accent)' }}>
                 {inputError}
               </p>
             )}
@@ -159,7 +159,6 @@ function App() {
                 flexWrap: isMobile ? 'wrap' : 'nowrap',
                 gap: isMobile ? '4px 12px' : '6px',
                 minWidth: isMobile ? undefined : '90px',
-                fontSize: isMobile ? '14px' : '11px',
                 paddingTop: isMobile ? 0 : '2px',
                 alignSelf: 'flex-start',
               }}
@@ -220,7 +219,6 @@ function App() {
                 : selectedId === 'portfolio' && isMobile
                 ? selectedScreenPos.y - PORTFOLIO_LABEL_OFFSET_Y_PX
                 : selectedScreenPos.y - 6,
-              fontSize: isMobile ? '14px' : '11px',
               fontFamily: 'inherit',
               cursor: 'pointer',
               zIndex: 5,

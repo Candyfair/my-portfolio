@@ -6,6 +6,8 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { ArticlesContent } from './ArticlesContent'
 import { ContactForm } from './ContactForm'
 import { NewsfeedContent } from './NewsfeedContent'
+import { PanelHeader } from './PanelHeader'
+import { SkillsMobileStack } from './SkillsMobileStack'
 import { DOT_PX, SKILLS_ENLARGED_DOT_PX } from './PortfolioGraph'
 
 // navBottom now tracks the nav+graph container bottom (see App.tsx navRef), so no extra gap needed
@@ -25,38 +27,6 @@ const SKILLS_NODE_RADIUS_PX = SKILLS_ENLARGED_DOT_PX / 2
 // gap from node center minus SKILLS_NODE_RADIUS_PX)
 const SKILLS_MOBILE_NODE_CLEARANCE_PX = 75
 
-// Mobile skills: vertical card stack matching MOBILE - Skills.png order
-const SKILLS_MOBILE_CARDS = [
-  { key: 'stack',     title: 'Languages & Frameworks', items: ['JavaScript (ES6+)', 'TypeScript', 'HTML5', 'CSS3', 'React', 'React Native', 'Redux', 'RTK Query', 'react-hook-form', 'Node.js', 'TailwindCSS', 'SASS', 'CSS Modules'] },
-  { key: 'dataviz',   title: 'Data Visualization',     items: ['D3.js (force simulations, custom SVG/HTML rendering)', 'Recharts', 'VictoryChart'] },
-  { key: 'ai',        title: 'AI / LLM',               items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
-  { key: 'testing',   title: 'Testing',                items: ['Jest', 'Vitest', 'React Testing Library'] },
-  { key: 'databases', title: 'Databases',              items: ['SQL', 'PostgreSQL'] },
-  { key: 'ui',        title: 'UI Design',              items: ['Figma', 'Photoshop', 'Illustrator', 'InDesign'] },
-  { key: 'tools',     title: 'Tools & Environment',    items: ['Vite', 'Expo', 'Git', 'GitHub', 'Vercel', 'VSCode', 'agentic tool-assisted development (Claude Code)'] },
-  { key: 'methods',   title: 'Methods',                items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
-  { key: 'languages', title: 'Languages',              items: ['French (native)', 'English (bilingual C2)'] },
-] as const
-
-function SkillsMobileStack() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {SKILLS_MOBILE_CARDS.map(card => (
-        <div
-          key={card.key}
-          style={{
-            border: '1px solid var(--color-fg)',
-            padding: '6px 10px',
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 2 }}>{card.title}</div>
-          <div>{card.items.join(', ')}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 interface ContentPanelProps {
   separatorBottom: number
   navBottom: number
@@ -66,6 +36,8 @@ interface ContentPanelProps {
 const PLACEHOLDER: Record<string, ReactNode> = {
   about: (
     <>
+      <PanelHeader nodeId="about" />
+
       <p>Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla. In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat, placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie quam.</p>
 
       <p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor. Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi, at scelerisque ante semper eu.</p>
@@ -79,6 +51,8 @@ const PLACEHOLDER: Record<string, ReactNode> = {
   ),
   portfolio: (
     <>
+      <PanelHeader nodeId="portfolio" />
+
       <p>Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla. In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat, placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie quam.</p>
 
       <p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor. Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi, at scelerisque ante semper eu.</p>
@@ -94,7 +68,12 @@ const PLACEHOLDER: Record<string, ReactNode> = {
   articles:  <ArticlesContent />,
   newsfeed:  <NewsfeedContent />,
   contact:   <ContactForm />,
-  socials:   <p>Placeholder — links.</p>,
+  socials:   (
+    <>
+      <PanelHeader nodeId="socials" />
+      <p>Placeholder — links.</p>
+    </>
+  ),
 }
 
 export function ContentPanel({ separatorBottom, navBottom, navListBottom }: ContentPanelProps) {
@@ -180,7 +159,6 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
             ref={contentRef}
             style={{
               padding: isMobile ? '1rem 12px 1.5rem' : '1rem 0 1.5rem',
-              fontSize: isMobile ? '14px' : '11px',
             }}
           >
             {isMobile && selectedId === 'skills' ? <SkillsMobileStack /> : PLACEHOLDER[selectedId]}

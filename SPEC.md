@@ -172,3 +172,4 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - Font size for mobile must be 14px at all times - except inside the input field where it is 12px
 - Repenser l'affichage mobile du panneau de contenu (testé sur iPhone 12) :
   le panneau se positionne correctement sous le nœud sélectionné mais n'occupe que le tiers inférieur de l'écran, rendant la lecture d'un article difficile. Piste retenue : faire remonter le panneau jusque sous le menu de navigation (1-2 lignes en mobile), quitte à recouvrir le nœud sélectionné — comportement déjà en place en desktop, où le nœud reste accessible via l'en-tête "> nomdunoeud" au-dessus du contenu.
+- Police par défaut du mode desktop à réévaluer : 11px actuellement, 12px envisagé pour tous les textes (lisibilité sur écrans laptop). Pas encore implémenté.

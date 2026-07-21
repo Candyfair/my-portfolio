@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ChangeEvent, CSSProperties, FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CONTACT_CONTENT, CONTACT_FALLBACK_EMAIL } from '../data/contactContent'
+import { PanelHeader } from './PanelHeader'
 
 // Replace with the real Web3Forms access key before deploying
 const WEB3FORMS_ACCESS_KEY = '67704ed4-8f5a-40cf-a5d9-fb632bc35edf'
@@ -107,6 +108,8 @@ export function ContactForm() {
 
   return (
     <div style={wrapperStyle}>
+      <PanelHeader nodeId="contact" />
+
       <AnimatePresence>
         {status === 'success' && <ContactSuccessToast />}
       </AnimatePresence>

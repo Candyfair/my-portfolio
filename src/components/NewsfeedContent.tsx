@@ -5,6 +5,7 @@ import type { GhostPost } from '../lib/ghostClient'
 import { formatPostDate } from '../lib/formatPostDate'
 import { NEWSFEED_CONTENT } from '../data/newsfeedContent'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { PanelHeader } from './PanelHeader'
 
 const NEWSFEED_TAG = 'news'
 const NEWSFEED_POST_LIMIT = 6
@@ -113,6 +114,8 @@ export function NewsfeedContent() {
 
   return (
     <div style={{ fontSize: isMobile ? '11px' : undefined }}>
+      <PanelHeader nodeId="newsfeed" />
+
       <div style={wrapperStyle}>
         <div style={titleRowStyle}>
           <p style={titleStyle}>{NEWSFEED_CONTENT.title}</p>
