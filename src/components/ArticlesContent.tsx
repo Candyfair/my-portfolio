@@ -6,6 +6,7 @@ import { formatPostDate } from '../lib/formatPostDate'
 import { filterGhostContentHtml } from '../lib/ghostContentFilters'
 import { ARTICLES_CONTENT } from '../data/articlesContent'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useSelection } from '../context/SelectionContext'
 
 const ARTICLES_TAG = 'ux-coding'
 const ARTICLES_POST_LIMIT = 20
@@ -132,6 +133,7 @@ export function ArticlesContent() {
   const [detailStatus, setDetailStatus] = useState<ArticlesStatus>('loading')
   const [detailPost, setDetailPost] = useState<GhostPost | null>(null)
   const isMobile = useIsMobile()
+  const { setIsArticleDetailOpen } = useSelection()
 
   useEffect(() => {
     let cancelled = false
@@ -180,10 +182,12 @@ export function ArticlesContent() {
     }
     setSelectedSlug(slug)
     setView('detail')
+    setIsArticleDetailOpen(true)
   }
 
   function backToList() {
     setView('list')
+    setIsArticleDetailOpen(false)
   }
 
   if (view === 'detail') {

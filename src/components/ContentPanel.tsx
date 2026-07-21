@@ -98,7 +98,7 @@ const PLACEHOLDER: Record<string, ReactNode> = {
 }
 
 export function ContentPanel({ separatorBottom, navBottom, navListBottom }: ContentPanelProps) {
-  const { selectedId, selectedScreenPos, articlesAnchorScreenPosRef } = useSelection()
+  const { selectedId, selectedScreenPos, articlesAnchorScreenPosRef, isArticleDetailOpen } = useSelection()
   const isMobile = useIsMobile()
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
@@ -135,6 +135,12 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
         selectedScreenPos.y + SKILLS_NODE_RADIUS_PX + SKILLS_MOBILE_NODE_CLEARANCE_PX,
         separatorBottom
       )
+    // Mobile articles: decouple the rise cap from the node's own graph position, which can
+    // sit low in the force-directed layout. Anchor to navListBottom instead, same as the
+    // desktop "long content" case further below — the selected node may end up visually
+    // covered by the panel, but the "> articles / title" header stays reachable above the content.
+    if (isMobile && selectedId === 'articles' && isArticleDetailOpen)
+      return Math.min(navListBottom + NAV_LIST_MARGIN_PX, separatorBottom)
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
       return Math.min(selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX, separatorBottom)
     if (RISING_NODES.has(selectedId ?? '')) {
