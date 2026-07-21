@@ -164,7 +164,7 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
             transform: 'translateX(-50%)',
             width: 'min(520px, 100vw)',
             background: 'var(--color-bg)',
-            zIndex: 5,
+            zIndex: 15,
             borderTop: '1px dashed var(--color-fg)',
             maxHeight: windowH - panelTop,
             overflowY: 'auto',

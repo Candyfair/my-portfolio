@@ -223,7 +223,7 @@ function App() {
               fontSize: isMobile ? '14px' : '11px',
               fontFamily: 'inherit',
               cursor: 'pointer',
-              zIndex: 10,
+              zIndex: 5,
               color: 'var(--color-accent)',
             }}
           >
