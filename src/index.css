@@ -107,6 +107,38 @@ p {
   color: var(--color-accent);
 }
 
+.articles-skeleton-bar {
+  height: 10px;
+  border-radius: 2px;
+  background-color: var(--articles-table-border);
+  animation: articles-pulse 1200ms ease-in-out infinite;
+}
+
+@keyframes articles-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.articles-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--articles-table-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: articles-spin 700ms linear infinite;
+}
+
+@keyframes articles-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 *,
 *::before,
 *::after {

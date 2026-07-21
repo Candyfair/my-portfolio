@@ -9,6 +9,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 
 const ARTICLES_TAG = 'ux-coding'
 const ARTICLES_POST_LIMIT = 20
+const ARTICLES_SKELETON_ROW_COUNT = 5
 
 type ArticlesStatus = 'loading' | 'success' | 'error'
 type ArticlesView = 'list' | 'detail'
@@ -100,6 +101,28 @@ const backLinkStyle: CSSProperties = {
   cursor: 'pointer',
 }
 
+const detailLoadingStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '160px',
+}
+
+const skeletonHashBarStyle: CSSProperties = {
+  display: 'inline-block',
+  width: '1em',
+}
+
+const skeletonTitleBarStyle: CSSProperties = {
+  display: 'block',
+  width: '70%',
+}
+
+const skeletonDateBarStyle: CSSProperties = {
+  display: 'inline-block',
+  width: '4.5em',
+}
+
 export function ArticlesContent() {
   const [status, setStatus] = useState<ArticlesStatus>('loading')
   const [posts, setPosts] = useState<GhostPost[]>([])
@@ -182,7 +205,11 @@ export function ArticlesContent() {
           )}
         </h1>
 
-        {detailStatus === 'loading' && <p style={emptyStyle}>{ARTICLES_CONTENT.detailLoadingMessage}</p>}
+        {detailStatus === 'loading' && (
+          <div style={detailLoadingStyle}>
+            <span className="articles-spinner" role="status" aria-label={ARTICLES_CONTENT.detailLoadingMessage} />
+          </div>
+        )}
 
         {detailStatus === 'success' && detailPost && (
           <article>
@@ -208,6 +235,26 @@ export function ArticlesContent() {
               )}
             </tr>
           </thead>
+
+          {status === 'loading' && (
+            <tbody>
+              {Array.from({ length: ARTICLES_SKELETON_ROW_COUNT }).map((_, index) => (
+                <tr key={index}>
+                  <td style={{ ...cellStyle, ...cellDividerStyle, ...hashCellStyle }}>
+                    <span className="articles-skeleton-bar" style={skeletonHashBarStyle} />
+                  </td>
+                  <td style={{ ...cellStyle, ...(!isMobile ? cellDividerStyle : {}) }}>
+                    <span className="articles-skeleton-bar" style={skeletonTitleBarStyle} />
+                  </td>
+                  {!isMobile && (
+                    <td style={cellStyle}>
+                      <span className="articles-skeleton-bar" style={skeletonDateBarStyle} />
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          )}
 
           {status === 'success' && posts.length > 0 && (
             <tbody>
