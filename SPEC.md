@@ -133,9 +133,12 @@ error message below the input, cleared on next input change.
 - Mobile (`useIsMobile`, existing 768px breakpoint, no new breakpoint introduced): the `Date` column (header + cells) is hidden, leaving `#` and `Title`.
 - State: same 3-state model as newsfeed (`loading` / `success` / `error`, plain `useState`, no `idle`) — fetch starts immediately on mount, same cancellation-flag pattern.
 - Empty (`success` with zero posts) and error copy come from `articlesContent.ts`, same separation of static UI copy vs. live post data as `newsfeedContent.ts`.
-- Rows show a pointer cursor and a hover state (text color shifts to `--color-accent`, via a `.articles-row` CSS class — same technique as `.newsfeed-legend-link:hover`, an inline color would beat `:hover` regardless of specificity) but have no click handler yet — explicitly deferred, marked with a `TODO` comment in `ArticlesContent.tsx`.
-- No new CSS custom properties — styled with the existing `--color-fg` / `--color-accent` / `--color-error` variables, unlike newsfeed's dedicated `--newsfeed-*` set.
-- Scoped entirely to `ArticlesContent.tsx` / `articlesContent.ts` — `ContentPanel.tsx` only swaps its placeholder for `<ArticlesContent />`, the 3-regime height system (§7) is untouched.
+- Rows show a pointer cursor and a hover state (text color shifts to `--color-accent`, via a `.articles-row` CSS class — same technique as `.newsfeed-legend-link:hover`, an inline color would beat `:hover` regardless of specificity).
+- Clicking a row opens an in-app detail view (rendered inside the same panel, no external link to the blog) fetched via `getPostBySlug(slug)`. The `<tr>` carries the click for mouse convenience, but the actual keyboard-/screen-reader-accessible control is a `<button>` wrapping the title cell's content — a `role`/`tabIndex` on `<tr>` itself would break table semantics for assistive tech.
+- Detail view: its own independent 3-state fetch (`loading` / `success` / `error`, separate from the list's), a `"> articles"` back button (`<button type="button">`, CSS-reset, `.articles-back-link` hover class) returning to the list, then title + date + `dangerouslySetInnerHTML` article body (trusted source — own Ghost blog, no sanitization lib). Images are made responsive via a `.article-body img { max-width: 100%; height: auto; }` rule in `index.css`. A `"Loading…"` message covers the detail fetch's `loading` state (`articlesContent.ts`) — unlike the list, which loads silently on mount, the detail fetch is triggered by an explicit user click, so an empty panel during the fetch would read as unresponsive.
+- Switching back to the list re-uses the already-fetched `posts` state (no re-fetch); returning to the node from scratch (deselect/reselect) always resets to the list view, since the whole component unmounts with `selectedId`.
+- No new CSS custom properties beyond `.article-body img` / `.articles-back-link` — styled with the existing `--color-fg` / `--color-accent` / `--color-error` variables, unlike newsfeed's dedicated `--newsfeed-*` set.
+- Scoped entirely to `ArticlesContent.tsx` / `articlesContent.ts`, plus the two CSS rules above in `index.css` (same file already extended for `.articles-row`/`.articles-table-*`) — `ghostClient.ts` and `ContentPanel.tsx` untouched; the 3-regime height system (§7) applies to the detail view automatically since it measures content height generically.
 
 ## 10. Project case-study sub-page
 
@@ -159,6 +162,7 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - Whether drag physics propagates to the dragged node's direct neighbors or only the dragged node itself
 - Exact color/design tokens beyond grey (default) / orange (active)
 - Input field visual styling does not yet match the mockup (colors, border, font) — pending a dedicated visual-polish pass.
+- The `"> nodename"` header pattern appears in the Figma mockups as a header for every panel (portfolio, newsfeed, contact, etc.), but is not yet implemented as a shared/reusable element in `ContentPanel.tsx`. It currently exists only locally in `ArticlesContent.tsx`, for the articles detail view's back button (§9ter) — generalizing it across all panels is deferred to a dedicated session.
 - Diagnostic sur l'utilisation de Tailwind dans le projet
 - Font size for mobile must be 14px at all times - except inside the input field where it is 12px
  

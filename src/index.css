@@ -64,6 +64,20 @@
   color: var(--color-accent);
 }
 
+.articles-back-link {
+  color: var(--color-fg);
+  transition: color 150ms ease;
+}
+
+.articles-back-link:hover {
+  color: var(--color-accent);
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
