@@ -9,6 +9,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 
 const ARTICLES_TAG = 'ux-coding'
 const ARTICLES_POST_LIMIT = 20
+const ARTICLES_MIN_PUBLISHED_DATE = '2025-01-01'
 const ARTICLES_SKELETON_ROW_COUNT = 5
 
 type ArticlesStatus = 'loading' | 'success' | 'error'
@@ -135,7 +136,7 @@ export function ArticlesContent() {
   useEffect(() => {
     let cancelled = false
 
-    getPostsByTag(ARTICLES_TAG, ARTICLES_POST_LIMIT)
+    getPostsByTag(ARTICLES_TAG, ARTICLES_POST_LIMIT, ARTICLES_MIN_PUBLISHED_DATE)
       .then(result => {
         if (cancelled) return
         setPosts(result)

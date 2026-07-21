@@ -16,8 +16,16 @@ interface GhostPostsResponse {
   posts: GhostPost[]
 }
 
-export async function getPostsByTag(tag: string, limit = 15): Promise<GhostPost[]> {
-  const url = `${GHOST_API_URL}/ghost/api/content/posts/?key=${GHOST_CONTENT_API_KEY}&filter=tag:${encodeURIComponent(tag)}&limit=${limit}&fields=id,slug,title,published_at`
+export async function getPostsByTag(
+  tag: string,
+  limit = 15,
+  publishedAfter?: string,
+): Promise<GhostPost[]> {
+  let filter = `tag:${tag}`
+  if (publishedAfter) {
+    filter += `+published_at:>'${publishedAfter}'`
+  }
+  const url = `${GHOST_API_URL}/ghost/api/content/posts/?key=${GHOST_CONTENT_API_KEY}&filter=${encodeURIComponent(filter)}&limit=${limit}&fields=id,slug,title,published_at`
   const response = await fetch(url, { headers: GHOST_API_VERSION_HEADER })
   if (!response.ok) throw new Error(`Ghost API error: ${response.status}`)
 
