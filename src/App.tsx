@@ -192,7 +192,7 @@ function App() {
             style={{
               borderTop: '1px dashed var(--color-fg)',
               marginTop: '0.75rem',
-              opacity: selectedId ? 0 : 1,
+              opacity: (isMobile || selectedId) ? 0 : 1,
               transition: 'opacity 0.15s',
             }}
           />

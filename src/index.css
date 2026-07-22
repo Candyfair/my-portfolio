@@ -17,14 +17,14 @@
 }
 
 :root {
-  --color-bg: #b8b2a8;
-  --color-fg: #6e6a61;
+  --color-bg: #e5d6d2;
+  --color-fg: #655a57;
   --color-accent: #c46537;
   --color-error: #b3261e;
   --newsfeed-bg: #1c2832;
   --newsfeed-accent: #00b593;
   --newsfeed-legend: #958b76;
-  --articles-table-bg: #b5aea1;
+  --articles-table-bg: #dbcbc6;
   --articles-table-border: #a29c8e;
   --content-block-gap: 16px;
   --article-media-rest-opacity: 0.5;
@@ -98,7 +98,9 @@ p {
 .article-body video {
   filter: grayscale(85%) sepia(15%) brightness(0.95) contrast(0.92);
   opacity: var(--article-media-rest-opacity);
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition:
+    filter 0.3s ease,
+    opacity 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
