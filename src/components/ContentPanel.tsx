@@ -1,99 +1,197 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import { useSelection } from '../context/SelectionContext'
-import { useIsMobile } from '../hooks/useIsMobile'
-import { ArticlesContent } from './ArticlesContent'
-import { ContactForm } from './ContactForm'
-import { NewsfeedContent } from './NewsfeedContent'
-import { PanelHeader } from './PanelHeader'
-import { SkillsMobileStack } from './SkillsMobileStack'
-import { DOT_PX, SKILLS_ENLARGED_DOT_PX } from './PortfolioGraph'
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useSelection } from '../context/SelectionContext';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { ArticlesContent } from './ArticlesContent';
+import { ContactForm } from './ContactForm';
+import { NewsfeedContent } from './NewsfeedContent';
+import { PanelHeader } from './PanelHeader';
+import { SocialsContent } from './SocialsContent';
+import { SkillsMobileStack } from './SkillsMobileStack';
+import { DOT_PX, SKILLS_ENLARGED_DOT_PX } from './PortfolioGraph';
 
 // navBottom now tracks the nav+graph container bottom (see App.tsx navRef), so no extra gap needed
-const NAV_GAP_PX = 0
+const NAV_GAP_PX = 0;
 
-const RISING_NODES = new Set(['about', 'portfolio', 'articles'])
-const ARTICLES_RISE_MARGIN_PX = 50
-const NAV_LIST_MARGIN_PX = 20
+const RISING_NODES = new Set(['about', 'portfolio', 'articles']);
+const ARTICLES_RISE_MARGIN_PX = 50;
+const NAV_LIST_MARGIN_PX = 20;
 // Minimum gap between the bottom edge of the selected node and the top of the panel (mobile rise cap)
-const PANEL_NODE_CLEARANCE_PX = 20
+const PANEL_NODE_CLEARANCE_PX = 20;
 // Skills node grows to SKILLS_ENLARGED_DOT_PX on selection (see PortfolioGraph.tsx
 // DotNode animate block) — this is the effective screen radius used
 // for its mobile rise cap.
-const SKILLS_NODE_RADIUS_PX = SKILLS_ENLARGED_DOT_PX / 2
+const SKILLS_NODE_RADIUS_PX = SKILLS_ENLARGED_DOT_PX / 2;
 // Extra clearance below the enlarged skills node before the panel
 // starts, calibrated against MOBILE__Skills.png mockup (~75px total
 // gap from node center minus SKILLS_NODE_RADIUS_PX)
-const SKILLS_MOBILE_NODE_CLEARANCE_PX = 75
+const SKILLS_MOBILE_NODE_CLEARANCE_PX = 75;
+
+const NEWSFEED_MOBILE_NODE_CLEARANCE_PX = -40; // initial estimate, needs manual calibration
+const SOCIALS_MOBILE_NODE_CLEARANCE_PX = -70; // initial estimate, needs manual calibration
 
 interface ContentPanelProps {
-  separatorBottom: number
-  navBottom: number
-  navListBottom: number
+  separatorBottom: number;
+  navBottom: number;
+  navListBottom: number;
 }
 
 const PLACEHOLDER: Record<string, ReactNode> = {
   about: (
     <>
-      <PanelHeader nodeId="about" />
+      <PanelHeader nodeId='about' />
 
-      <p>Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla. In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat, placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie quam.</p>
+      <p>
+        Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla.
+        In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante
+        sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam
+        nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus
+        pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas
+        venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere
+        metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat,
+        placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie
+        quam.
+      </p>
 
-      <p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor. Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi, at scelerisque ante semper eu.</p>
+      <p>
+        Orci varius natoque penatibus et magnis dis parturient montes, nascetur
+        ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem
+        consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas
+        mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus
+        orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor.
+        Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor
+        consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna
+        varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi,
+        at scelerisque ante semper eu.
+      </p>
 
-      <p>Cras pellentesque nisl volutpat, sollicitudin purus in, pretium tellus. Pellentesque sagittis non arcu eu pulvinar. Aliquam sit amet ultrices tortor. Nulla facilisi. Mauris ac aliquam ipsum, sit amet pretium tortor. Donec id condimentum purus, eget facilisis mauris. Ut nulla mauris, consequat ultricies sollicitudin vitae, accumsan ut metus. Curabitur volutpat id odio ac iaculis. Duis tellus mi, dictum eu nisl ut, accumsan venenatis urna.</p>
+      <p>
+        Cras pellentesque nisl volutpat, sollicitudin purus in, pretium tellus.
+        Pellentesque sagittis non arcu eu pulvinar. Aliquam sit amet ultrices
+        tortor. Nulla facilisi. Mauris ac aliquam ipsum, sit amet pretium
+        tortor. Donec id condimentum purus, eget facilisis mauris. Ut nulla
+        mauris, consequat ultricies sollicitudin vitae, accumsan ut metus.
+        Curabitur volutpat id odio ac iaculis. Duis tellus mi, dictum eu nisl
+        ut, accumsan venenatis urna.
+      </p>
 
-      <p>Vestibulum ac massa et magna venenatis placerat. Donec nec magna eu ex sagittis varius ac et nisi. Aenean commodo elementum ipsum quis dignissim. Aenean porta quis neque quis tincidunt. Phasellus congue efficitur enim, eget tincidunt leo mollis vitae. Maecenas nec tincidunt felis. Fusce sagittis neque tincidunt accumsan vestibulum. Vivamus justo libero, rhoncus nec erat ut, blandit dignissim nunc.</p>
+      <p>
+        Vestibulum ac massa et magna venenatis placerat. Donec nec magna eu ex
+        sagittis varius ac et nisi. Aenean commodo elementum ipsum quis
+        dignissim. Aenean porta quis neque quis tincidunt. Phasellus congue
+        efficitur enim, eget tincidunt leo mollis vitae. Maecenas nec tincidunt
+        felis. Fusce sagittis neque tincidunt accumsan vestibulum. Vivamus justo
+        libero, rhoncus nec erat ut, blandit dignissim nunc.
+      </p>
 
-      <p>Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit, vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum. Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia turpis. Integer finibus erat eu purus gravida, sit amet cursus sem hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae in ligula. Duis euismod vulputate ligula a malesuada.</p>
+      <p>
+        Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit,
+        vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam
+        ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In
+        tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum.
+        Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia
+        turpis. Integer finibus erat eu purus gravida, sit amet cursus sem
+        hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit
+        interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae
+        in ligula. Duis euismod vulputate ligula a malesuada.
+      </p>
     </>
   ),
   portfolio: (
     <>
-      <PanelHeader nodeId="portfolio" />
+      <PanelHeader nodeId='portfolio' />
 
-      <p>Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla. In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat, placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie quam.</p>
+      <p>
+        Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla.
+        In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante
+        sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam
+        nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus
+        pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas
+        venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere
+        metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat,
+        placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie
+        quam.
+      </p>
 
-      <p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor. Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi, at scelerisque ante semper eu.</p>
+      <p>
+        Orci varius natoque penatibus et magnis dis parturient montes, nascetur
+        ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem
+        consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas
+        mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus
+        orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor.
+        Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor
+        consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna
+        varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi,
+        at scelerisque ante semper eu.
+      </p>
 
-      <p>Cras pellentesque nisl volutpat, sollicitudin purus in, pretium tellus. Pellentesque sagittis non arcu eu pulvinar. Aliquam sit amet ultrices tortor. Nulla facilisi. Mauris ac aliquam ipsum, sit amet pretium tortor. Donec id condimentum purus, eget facilisis mauris. Ut nulla mauris, consequat ultricies sollicitudin vitae, accumsan ut metus. Curabitur volutpat id odio ac iaculis. Duis tellus mi, dictum eu nisl ut, accumsan venenatis urna.</p>
+      <p>
+        Cras pellentesque nisl volutpat, sollicitudin purus in, pretium tellus.
+        Pellentesque sagittis non arcu eu pulvinar. Aliquam sit amet ultrices
+        tortor. Nulla facilisi. Mauris ac aliquam ipsum, sit amet pretium
+        tortor. Donec id condimentum purus, eget facilisis mauris. Ut nulla
+        mauris, consequat ultricies sollicitudin vitae, accumsan ut metus.
+        Curabitur volutpat id odio ac iaculis. Duis tellus mi, dictum eu nisl
+        ut, accumsan venenatis urna.
+      </p>
 
-      <p>Vestibulum ac massa et magna venenatis placerat. Donec nec magna eu ex sagittis varius ac et nisi. Aenean commodo elementum ipsum quis dignissim. Aenean porta quis neque quis tincidunt. Phasellus congue efficitur enim, eget tincidunt leo mollis vitae. Maecenas nec tincidunt felis. Fusce sagittis neque tincidunt accumsan vestibulum. Vivamus justo libero, rhoncus nec erat ut, blandit dignissim nunc.</p>
+      <p>
+        Vestibulum ac massa et magna venenatis placerat. Donec nec magna eu ex
+        sagittis varius ac et nisi. Aenean commodo elementum ipsum quis
+        dignissim. Aenean porta quis neque quis tincidunt. Phasellus congue
+        efficitur enim, eget tincidunt leo mollis vitae. Maecenas nec tincidunt
+        felis. Fusce sagittis neque tincidunt accumsan vestibulum. Vivamus justo
+        libero, rhoncus nec erat ut, blandit dignissim nunc.
+      </p>
 
-      <p>Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit, vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum. Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia turpis. Integer finibus erat eu purus gravida, sit amet cursus sem hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae in ligula. Duis euismod vulputate ligula a malesuada.</p>
+      <p>
+        Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit,
+        vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam
+        ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In
+        tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum.
+        Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia
+        turpis. Integer finibus erat eu purus gravida, sit amet cursus sem
+        hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit
+        interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae
+        in ligula. Duis euismod vulputate ligula a malesuada.
+      </p>
     </>
   ),
-  skills:    <p>Placeholder — skills overlay (M4).</p>,
-  articles:  <ArticlesContent />,
-  newsfeed:  <NewsfeedContent />,
-  contact:   <ContactForm />,
-  socials:   (
-    <>
-      <PanelHeader nodeId="socials" />
-      <p>Placeholder — links.</p>
-    </>
-  ),
-}
+  skills: <p>Placeholder — skills overlay (M4).</p>,
+  articles: <ArticlesContent />,
+  newsfeed: <NewsfeedContent />,
+  contact: <ContactForm />,
+  socials: <SocialsContent />,
+};
 
-export function ContentPanel({ separatorBottom, navBottom, navListBottom }: ContentPanelProps) {
-  const { selectedId, selectedScreenPos, articlesAnchorScreenPosRef, isArticleDetailOpen } = useSelection()
-  const isMobile = useIsMobile()
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(0)
+export function ContentPanel({
+  separatorBottom,
+  navBottom,
+  navListBottom,
+}: ContentPanelProps) {
+  const {
+    selectedId,
+    selectedScreenPos,
+    articlesAnchorScreenPosRef,
+    isArticleDetailOpen,
+  } = useSelection();
+  const isMobile = useIsMobile();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
 
   useEffect(() => {
-    setContentHeight(0)
-    const el = contentRef.current
-    if (!el) return
+    setContentHeight(0);
+    const el = contentRef.current;
+    if (!el) return;
     const ro = new ResizeObserver(() => {
-      setContentHeight(el.offsetHeight)
-    })
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [selectedId])
+      setContentHeight(el.offsetHeight);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [selectedId]);
 
-  const windowH = window.innerHeight
+  const windowH = window.innerHeight;
 
   // Rise cap (regime 3 floor): minimum panelTop value.
   // Mobile general (not skills): bottom edge of the selected node (screen Y at selection time
@@ -104,34 +202,52 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
   //   node visually grows by 3x on selection (see PortfolioGraph.tsx DotNode).
   // Desktop about/portfolio/articles (medium content): capped 50px below articles anchor.
   // Desktop about/portfolio/articles (very long content) + all other desktop nodes: navBottom.
-  const desiredRaw = windowH - contentHeight
-  const articlesAnchorY = articlesAnchorScreenPosRef.current?.y ?? navBottom
-  const articlesRiseCap = articlesAnchorY + ARTICLES_RISE_MARGIN_PX
+  const desiredRaw = windowH - contentHeight;
+  const articlesAnchorY = articlesAnchorScreenPosRef.current?.y ?? navBottom;
+  const articlesRiseCap = articlesAnchorY + ARTICLES_RISE_MARGIN_PX;
 
   const riseCap = (() => {
     if (isMobile && selectedId === 'skills' && selectedScreenPos !== null)
       return Math.min(
-        selectedScreenPos.y + SKILLS_NODE_RADIUS_PX + SKILLS_MOBILE_NODE_CLEARANCE_PX,
-        separatorBottom
-      )
+        selectedScreenPos.y +
+          SKILLS_NODE_RADIUS_PX +
+          SKILLS_MOBILE_NODE_CLEARANCE_PX,
+        separatorBottom,
+      );
     // Mobile articles: decouple the rise cap from the node's own graph position, which can
     // sit low in the force-directed layout. Anchor to navListBottom instead, same as the
     // desktop "long content" case further below — the selected node may end up visually
     // covered by the panel, but the "> articles / title" header stays reachable above the content.
     if (isMobile && selectedId === 'articles' && isArticleDetailOpen)
-      return Math.min(navListBottom + NAV_LIST_MARGIN_PX, separatorBottom)
+      return Math.min(navListBottom + NAV_LIST_MARGIN_PX, separatorBottom);
+    if (isMobile && selectedId === 'newsfeed' && selectedScreenPos !== null)
+      return Math.min(
+        selectedScreenPos.y + DOT_PX / 2 + NEWSFEED_MOBILE_NODE_CLEARANCE_PX,
+        separatorBottom,
+      );
+    if (isMobile && selectedId === 'socials' && selectedScreenPos !== null)
+      return Math.min(
+        selectedScreenPos.y + DOT_PX / 2 + SOCIALS_MOBILE_NODE_CLEARANCE_PX,
+        separatorBottom,
+      );
     if (isMobile && selectedId !== 'skills' && selectedScreenPos !== null)
-      return Math.min(selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX, separatorBottom)
+      return Math.min(
+        selectedScreenPos.y + DOT_PX / 2 + PANEL_NODE_CLEARANCE_PX,
+        separatorBottom,
+      );
     if (RISING_NODES.has(selectedId ?? '')) {
-      if (desiredRaw >= articlesRiseCap) return articlesRiseCap
-      return navListBottom + NAV_LIST_MARGIN_PX
+      if (desiredRaw >= articlesRiseCap) return articlesRiseCap;
+      return navListBottom + NAV_LIST_MARGIN_PX;
     }
-    return navBottom + NAV_GAP_PX
-  })()
+    return navBottom + NAV_GAP_PX;
+  })();
 
-  const panelTop = contentHeight > 0
-    ? Math.max(riseCap, Math.min(separatorBottom, desiredRaw))
-    : separatorBottom
+  const panelTop =
+    isMobile && selectedId === 'socials' && selectedScreenPos !== null
+      ? riseCap
+      : contentHeight > 0
+        ? Math.max(riseCap, Math.min(separatorBottom, desiredRaw))
+        : separatorBottom;
 
   return (
     <AnimatePresence>
@@ -161,10 +277,14 @@ export function ContentPanel({ separatorBottom, navBottom, navListBottom }: Cont
               padding: isMobile ? '1rem 12px 1.5rem' : '1rem 0 1.5rem',
             }}
           >
-            {isMobile && selectedId === 'skills' ? <SkillsMobileStack /> : PLACEHOLDER[selectedId]}
+            {isMobile && selectedId === 'skills' ? (
+              <SkillsMobileStack />
+            ) : (
+              PLACEHOLDER[selectedId]
+            )}
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
