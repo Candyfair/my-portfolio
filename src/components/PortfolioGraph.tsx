@@ -21,6 +21,10 @@ export const SKILLS_SCALE_FACTOR = 3
 export const SKILLS_ENLARGED_DOT_PX = DOT_PX * SKILLS_SCALE_FACTOR
 const TOUCH_TARGET_PX = 44
 const COLOR = '#958B76'
+const SKILLS_SELECTED_DRIFT_AMPLITUDE_X_PX = 4 // initial estimate, needs manual calibration
+const SKILLS_SELECTED_DRIFT_AMPLITUDE_Y_PX = 3 // initial estimate, needs manual calibration
+const SKILLS_SELECTED_DRIFT_DURATION_X_S = 3.2 // initial estimate, needs manual calibration
+const SKILLS_SELECTED_DRIFT_DURATION_Y_S = 2.5 // initial estimate, needs manual calibration
 const DRAG_LINK_STRENGTH = 0.08   // spring that pulls neighbors during drag — tune for elastic lag
 const NEIGHBOR_RETURN_STRENGTH = 0.005  // weak anchor-return force after release — tune for return speed
 
@@ -63,8 +67,23 @@ function DotNode({ id }: NodeProps) {
         animate={{
           width:  isSelected && id === 'skills' ? SKILLS_ENLARGED_DOT_PX : DOT_PX,
           height: isSelected && id === 'skills' ? SKILLS_ENLARGED_DOT_PX : DOT_PX,
+          x: isSelected && id === 'skills'
+            ? [-SKILLS_SELECTED_DRIFT_AMPLITUDE_X_PX, SKILLS_SELECTED_DRIFT_AMPLITUDE_X_PX]
+            : 0,
+          y: isSelected && id === 'skills'
+            ? [-SKILLS_SELECTED_DRIFT_AMPLITUDE_Y_PX, SKILLS_SELECTED_DRIFT_AMPLITUDE_Y_PX]
+            : 0,
         }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{
+          width:  { duration: 0.3 },
+          height: { duration: 0.3 },
+          x: isSelected && id === 'skills'
+            ? { duration: SKILLS_SELECTED_DRIFT_DURATION_X_S, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }
+            : { duration: 0 },
+          y: isSelected && id === 'skills'
+            ? { duration: SKILLS_SELECTED_DRIFT_DURATION_Y_S, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }
+            : { duration: 0 },
+        }}
         style={{
           position: 'absolute',
           top: '50%',

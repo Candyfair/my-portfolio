@@ -158,7 +158,7 @@ const PLACEHOLDER: Record<string, ReactNode> = {
       </p>
     </>
   ),
-  skills: <p>Placeholder — skills overlay (M4).</p>,
+  skills: <p></p>,
   articles: <ArticlesContent />,
   newsfeed: <NewsfeedContent />,
   contact: <ContactForm />,

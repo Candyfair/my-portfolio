@@ -28,6 +28,8 @@ const SKILLS_OVERLAY_BOTTOM_MARGIN = 20; // px gap between lowest skills card an
 // horizontally, -radius vertically.
 const SKILLS_LABEL_OFFSET_X_PX = SKILLS_ENLARGED_DOT_PX / 2 + 8;
 const SKILLS_LABEL_OFFSET_Y_PX = -(SKILLS_ENLARGED_DOT_PX / 2);
+const SKILLS_LABEL_DESKTOP_OFFSET_X_PX = SKILLS_ENLARGED_DOT_PX / 2 + 8;
+const SKILLS_LABEL_DESKTOP_OFFSET_Y_PX = -7; // initial estimate, needs manual calibration
 
 // Flying label offset for the portfolio node on mobile only — isolated from the general
 // +14/-6 offset because the portfolio node sits near the right edge of the mobile graph,
@@ -234,17 +236,21 @@ function App() {
             style={{
               position: 'fixed',
               left:
-                selectedId === 'skills'
+                selectedId === 'skills' && isMobile
                   ? selectedScreenPos.x + SKILLS_LABEL_OFFSET_X_PX
-                  : selectedId === 'portfolio' && isMobile
-                    ? selectedScreenPos.x - PORTFOLIO_LABEL_OFFSET_X_PX
-                    : selectedScreenPos.x + 14,
+                  : selectedId === 'skills' && !isMobile
+                    ? selectedScreenPos.x - SKILLS_LABEL_DESKTOP_OFFSET_X_PX
+                    : selectedId === 'portfolio' && isMobile
+                      ? selectedScreenPos.x - PORTFOLIO_LABEL_OFFSET_X_PX
+                      : selectedScreenPos.x + 14,
               top:
-                selectedId === 'skills'
+                selectedId === 'skills' && isMobile
                   ? selectedScreenPos.y + SKILLS_LABEL_OFFSET_Y_PX
-                  : selectedId === 'portfolio' && isMobile
-                    ? selectedScreenPos.y - PORTFOLIO_LABEL_OFFSET_Y_PX
-                    : selectedScreenPos.y - 6,
+                  : selectedId === 'skills' && !isMobile
+                    ? selectedScreenPos.y + SKILLS_LABEL_DESKTOP_OFFSET_Y_PX
+                    : selectedId === 'portfolio' && isMobile
+                      ? selectedScreenPos.y - PORTFOLIO_LABEL_OFFSET_Y_PX
+                      : selectedScreenPos.y - 6,
               fontFamily: 'inherit',
               cursor: 'pointer',
               zIndex: 5,
@@ -253,7 +259,8 @@ function App() {
           >
             <span
               style={
-                selectedId === 'portfolio' && isMobile
+                (selectedId === 'portfolio' && isMobile) ||
+                (selectedId === 'skills' && !isMobile)
                   ? { transform: 'translateX(-100%)', display: 'inline-block' }
                   : undefined
               }

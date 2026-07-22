@@ -100,6 +100,28 @@ error message below the input, cleared on next input change.
   - `socials` → link list
   - `skills` → see §8
 
+  ### Mobile panel vertical positioning (riseCap pattern)
+
+  On mobile, each graph node uses an independent panel-positioning strategy in
+  `ContentPanel.tsx` rather than a shared formula, consistent with the
+  project's "independent constants per node" principle.
+  - `skills`, `newsfeed`, and `socials` each own a dedicated
+    `<NODE>_MOBILE_NODE_CLEARANCE_PX` constant and a dedicated branch in the
+    `riseCap` calculation (`selectedScreenPos.y + DOT_PX / 2 + clearance`,
+    capped at `separatorBottom`).
+  - All other nodes (`contact`, `about`, `articles`, `portfolio`) fall back to
+    the generic branch, which combines `riseCap` with a bottom-anchored
+    position derived from the actual rendered content height
+    (`Math.max(riseCap, Math.min(separatorBottom, windowH - contentHeight))`),
+    keeping short-content panels anchored near the bottom of the screen
+    rather than floating mid-screen.
+  - `socials` additionally bypasses this generic bottom-anchor logic entirely
+    (`panelTop = riseCap` directly), because its very short content otherwise
+    makes the bottom-anchor branch always win over `riseCap`, rendering its
+    dedicated clearance constant ineffective. If any other node's content
+    becomes short enough to trigger the same issue, apply the same bypass
+    rather than modifying the shared bottom-anchor formula.
+
 ## 8. Skills node — special behavior
 
 - Sub-categories are rendered as an HTML overlay component, NOT as real React Flow nodes/edges (deliberate simplification — see CLAUDE.md §3 for rationale: avoids reconciling two very different desktop/mobile layouts within the graph's coordinate system, and these elements have no drag/float/physics behavior of their own).
@@ -159,7 +181,7 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 
 ## 12. Open items — do not assume, ask before implementing
 
-- `portfolio` case-studies will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` and `articles` are now implemented — see §9bis and §9ter.)
+- `portfolio` case-studies will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` and `articles` are implemented — see §9bis and §9ter.)
 - Exact stagger order for skills cards
 - Exact floating animation parameters (amplitude/frequency ranges)
 - Behavior of the project case-study sub-page (§9)
@@ -167,9 +189,4 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 - Whether drag physics propagates to the dragged node's direct neighbors or only the dragged node itself
 - Exact color/design tokens beyond grey (default) / orange (active)
 - Input field visual styling does not yet match the mockup (colors, border, font) — pending a dedicated visual-polish pass.
-- The `"> nodename"` header pattern appears in the Figma mockups as a header for every panel (portfolio, newsfeed, contact, etc.), but is not yet implemented as a shared/reusable element in `ContentPanel.tsx`. It currently exists only locally in `ArticlesContent.tsx`, for the articles detail view's back button (§9ter) — generalizing it across all panels is deferred to a dedicated session.
 - Diagnostic sur l'utilisation de Tailwind dans le projet
-- Font size for mobile must be 14px at all times - except inside the input field where it is 12px
-- Repenser l'affichage mobile du panneau de contenu (testé sur iPhone 12) :
-  le panneau se positionne correctement sous le nœud sélectionné mais n'occupe que le tiers inférieur de l'écran, rendant la lecture d'un article difficile. Piste retenue : faire remonter le panneau jusque sous le menu de navigation (1-2 lignes en mobile), quitte à recouvrir le nœud sélectionné — comportement déjà en place en desktop, où le nœud reste accessible via l'en-tête "> nomdunoeud" au-dessus du contenu.
-- Police par défaut du mode desktop à réévaluer : 11px actuellement, 12px envisagé pour tous les textes (lisibilité sur écrans laptop). Pas encore implémenté.
