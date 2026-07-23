@@ -22,7 +22,9 @@ export function SkillsMobileStack() {
         <div
           key={card.key}
           style={{
-            border: '1px solid var(--color-fg)',
+            background: 'var(--articles-table-bg)',
+            border: '1px solid var(--newsfeed-legend)',
+            borderRadius: '12px',
             padding: '6px 10px',
           }}
         >

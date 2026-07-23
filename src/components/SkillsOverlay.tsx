@@ -4,15 +4,15 @@ import { useSelection } from '../context/SelectionContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 const CARDS = [
-  { key: 'languages', title: 'Languages',              w: 170, dx: -205, dy: -100, items: ['French (native)', 'English (bilingual C2)'] },
-  { key: 'databases', title: 'Databases',              w: 145, dx:  130, dy: -100, items: ['SQL', 'PostgreSQL'] },
-  { key: 'testing',   title: 'Testing',                w: 155, dx:   42, dy:  -50, items: ['Jest', 'Vitest', 'React Testing Library'] },
+  { key: 'languages', title: 'Languages',              w: 170, dx: -155, dy: -106, items: ['French (native)', 'English (bilingual C2)'] },
+  { key: 'databases', title: 'Databases',              w: 145, dx:  125, dy: -100, items: ['SQL', 'PostgreSQL'] },
+  { key: 'testing',   title: 'Testing',                w: 155, dx:   42, dy:  -40, items: ['Jest', 'Vitest', 'React Testing Library'] },
   { key: 'ui',        title: 'UI Design',              w: 170, dx: -165, dy:   28, items: ['Figma', 'Photoshop', 'Illustrator', 'InDesign'] },
-  { key: 'stack',     title: 'Languages & Frameworks', w: 230, dx:   10, dy:   28, items: ['JavaScript (ES6+)', 'TypeScript', 'HTML5', 'CSS3', 'React', 'React Native', 'Redux', 'RTK Query', 'react-hook-form', 'Node.js', 'TailwindCSS', 'SASS', 'CSS Modules'] },
-  { key: 'dataviz',   title: 'Data Visualization',     w: 195, dx: -220, dy:  108, items: ['D3.js (force simulations, custom SVG/HTML rendering)', 'Recharts', 'VictoryChart'] },
-  { key: 'ai',        title: 'AI / LLM',               w: 230, dx:  -20, dy:  170, items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
-  { key: 'tools',     title: 'Tools & Environment',    w: 170, dx: -220, dy:  228, items: ['Vite', 'Expo', 'Git', 'GitHub', 'Vercel', 'VSCode', 'agentic tool-assisted development (Claude Code)'] },
-  { key: 'methods',   title: 'Methods',                w: 195, dx:  -52, dy:  295, items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
+  { key: 'stack',     title: 'Languages & Frameworks', w: 230, dx:   20, dy:   40, items: ['JavaScript (ES6+)', 'TypeScript', 'HTML5', 'CSS3', 'React', 'React Native', 'Redux', 'RTK Query', 'react-hook-form', 'Node.js', 'TailwindCSS', 'SASS', 'CSS Modules'] },
+  { key: 'dataviz',   title: 'Data Visualization',     w: 195, dx: -210, dy:  117, items: ['D3.js (force simulations, custom SVG/HTML rendering)', 'Recharts', 'VictoryChart'] },
+  { key: 'ai',        title: 'AI / LLM',               w: 230, dx:  40, dy:  178, items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
+  { key: 'tools',     title: 'Tools & Environment',    w: 170, dx: -240, dy:  238, items: ['Vite', 'Expo', 'Git', 'GitHub', 'Vercel', 'VSCode', 'agentic tool-assisted development (Claude Code)'] },
+  { key: 'methods',   title: 'Methods',                w: 195, dx:  -40, dy:  305, items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
 ] as const
 
 interface SkillsOverlayProps {
@@ -63,8 +63,9 @@ export function SkillsOverlay({ onCardsBottomChange }: SkillsOverlayProps) {
                 fontFamily: 'inherit',
                 fontSize: '11px',
                 color: 'var(--color-fg)',
-                background: 'var(--color-bg)',
-                border: '1px solid var(--color-fg)',
+                background: 'var(--articles-table-bg)',
+                border: '1px solid var(--newsfeed-legend)',
+                borderRadius: '12px',
                 padding: '6px 10px',
                 pointerEvents: 'auto',
               }}
