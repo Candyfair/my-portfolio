@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useSelection } from '../context/SelectionContext';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { AboutContent } from './AboutContent';
 import { ArticlesContent } from './ArticlesContent';
 import { ContactForm } from './ContactForm';
 import { NewsfeedContent } from './NewsfeedContent';
@@ -38,66 +39,7 @@ interface ContentPanelProps {
 }
 
 const PLACEHOLDER: Record<string, ReactNode> = {
-  about: (
-    <>
-      <PanelHeader nodeId='about' />
-
-      <p>
-        Maecenas quis velit vitae ipsum rhoncus iaculis. Duis ac mattis nulla.
-        In iaculis ante vel odio dignissim mattis. Donec facilisis vitae ante
-        sed auctor. Ut non nisl et nibh facilisis blandit eu quis justo. Etiam
-        nec elit accumsan, dapibus mi ut, facilisis nisl. Vivamus et purus
-        pulvinar, volutpat justo sit amet, ultricies erat. Curabitur egestas
-        venenatis ipsum et porttitor. Vivamus vitae lacinia ligula. In posuere
-        metus massa, in dignissim magna viverra pharetra. Nulla a orci feugiat,
-        placerat turpis non, commodo mi. Donec a rhoncus metus, ac molestie
-        quam.
-      </p>
-
-      <p>
-        Orci varius natoque penatibus et magnis dis parturient montes, nascetur
-        ridiculus mus. Duis interdum porttitor urna, tincidunt malesuada sem
-        consectetur faucibus. Donec tellus sem, ultricies at nisl a, egestas
-        mollis ante. Etiam eros quam, vehicula sed tempor vel, egestas faucibus
-        orci. Nam ultrices volutpat dui vel aliquam. Donec id posuere dolor.
-        Vestibulum quis cursus turpis. Duis et malesuada massa. Donec in tortor
-        consectetur, blandit metus id, feugiat dolor. Pellentesque sed urna
-        varius, consequat justo non, blandit neque. Nam dignissim sagittis nisi,
-        at scelerisque ante semper eu.
-      </p>
-
-      <p>
-        Cras pellentesque nisl volutpat, sollicitudin purus in, pretium tellus.
-        Pellentesque sagittis non arcu eu pulvinar. Aliquam sit amet ultrices
-        tortor. Nulla facilisi. Mauris ac aliquam ipsum, sit amet pretium
-        tortor. Donec id condimentum purus, eget facilisis mauris. Ut nulla
-        mauris, consequat ultricies sollicitudin vitae, accumsan ut metus.
-        Curabitur volutpat id odio ac iaculis. Duis tellus mi, dictum eu nisl
-        ut, accumsan venenatis urna.
-      </p>
-
-      <p>
-        Vestibulum ac massa et magna venenatis placerat. Donec nec magna eu ex
-        sagittis varius ac et nisi. Aenean commodo elementum ipsum quis
-        dignissim. Aenean porta quis neque quis tincidunt. Phasellus congue
-        efficitur enim, eget tincidunt leo mollis vitae. Maecenas nec tincidunt
-        felis. Fusce sagittis neque tincidunt accumsan vestibulum. Vivamus justo
-        libero, rhoncus nec erat ut, blandit dignissim nunc.
-      </p>
-
-      <p>
-        Suspendisse condimentum hendrerit efficitur. Sed dictum porta elit,
-        vitae rhoncus metus egestas eu. Nam vel finibus orci, sit amet aliquam
-        ex. Morbi accumsan erat eu orci ornare, eget sagittis ante faucibus. In
-        tempus tellus pharetra eros volutpat, id venenatis ipsum vestibulum.
-        Pellentesque orci sapien, elementum eget lorem quis, tristique lacinia
-        turpis. Integer finibus erat eu purus gravida, sit amet cursus sem
-        hendrerit. Mauris imperdiet mattis posuere. Aliquam in tellus in elit
-        interdum tempus. Donec nec lectus ultricies felis dignissim varius vitae
-        in ligula. Duis euismod vulputate ligula a malesuada.
-      </p>
-    </>
-  ),
+  about: <AboutContent />,
   portfolio: (
     <>
       <PanelHeader nodeId='portfolio' />
