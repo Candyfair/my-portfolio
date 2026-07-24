@@ -126,7 +126,8 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                border: '1px solid var(--color-fg)',
+                background: 'var(--articles-table-bg)',
+                borderBottom: '1px solid var(--articles-table-border)',
                 padding: '3px 8px',
               }}
             >

@@ -10,9 +10,9 @@ const CARDS = [
   { key: 'ui',        title: 'UI Design',              w: 170, dx: -165, dy:   28, items: ['Figma', 'Photoshop', 'Illustrator', 'InDesign'] },
   { key: 'stack',     title: 'Languages & Frameworks', w: 230, dx:   20, dy:   40, items: ['JavaScript (ES6+)', 'TypeScript', 'HTML5', 'CSS3', 'React', 'React Native', 'Redux', 'RTK Query', 'react-hook-form', 'Node.js', 'TailwindCSS', 'SASS', 'CSS Modules'] },
   { key: 'dataviz',   title: 'Data Visualization',     w: 195, dx: -210, dy:  117, items: ['D3.js (force simulations, custom SVG/HTML rendering)', 'Recharts', 'VictoryChart'] },
-  { key: 'ai',        title: 'AI / LLM',               w: 230, dx:  40, dy:  178, items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
+  { key: 'ai',        title: 'AI / LLM',               w: 230, dx:  45, dy:  185, items: ['Local LLM integration (Ollama)', 'SSE streaming', 'anti-hallucination pipelines', 'multilingual few-shot prompting'] },
   { key: 'tools',     title: 'Tools & Environment',    w: 170, dx: -240, dy:  238, items: ['Vite', 'Expo', 'Git', 'GitHub', 'Vercel', 'VSCode', 'agentic tool-assisted development (Claude Code)'] },
-  { key: 'methods',   title: 'Methods',                w: 195, dx:  -40, dy:  305, items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
+  { key: 'methods',   title: 'Methods',                w: 195, dx:  -40, dy:  315, items: ['Agile (Scrum/Kanban)', 'code review', 'technical documentation', 'requirements specification'] },
 ] as const
 
 interface SkillsOverlayProps {
@@ -54,7 +54,7 @@ export function SkillsOverlay({ onCardsBottomChange }: SkillsOverlayProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeIn', delay: i * 0.06 }}
+              transition={{ duration: 0.2, ease: 'easeIn', delay: i * 0.1 }}
               style={{
                 position: 'absolute',
                 left: selectedScreenPos!.x + card.dx,

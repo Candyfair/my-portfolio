@@ -11,10 +11,11 @@ const listStyle: CSSProperties = {
   padding: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
+  gap: '16px',
 }
 
-// li stays the flex container so the global li::before dash lands before the row, not above it.
+// li stays the flex container for layout only — see .socials-list in index.css,
+// which strips the global li dash/marker for this list.
 const itemStyle: CSSProperties = {
   display: 'flex',
   gap: '4px',
@@ -47,7 +48,7 @@ export function SocialsContent() {
     <div>
       <PanelHeader nodeId="socials" />
 
-      <ul style={listStyle}>
+      <ul style={listStyle} className="socials-list">
         {SOCIALS_CONTENT.map((link) => (
           <li key={link.label} style={itemStyle}>
             <div style={isMobile ? rowStyleMobile : rowStyleDesktop}>

@@ -126,7 +126,7 @@ export function NewsfeedContent() {
         </div>
 
         {status === 'success' && posts.length > 0 && (
-          <ul style={listStyle}>
+          <ul style={listStyle} className="newsfeed-list">
             {posts.map(post => (
               <li key={post.id} style={isMobile ? itemStyleMobile : itemStyleDesktop}>
                 <span style={dateStyle}>{formatPostDate(post.published_at)}</span>

@@ -5,6 +5,7 @@ import type { GhostPost } from '../lib/ghostClient';
 import { getProjectCompany, getProjectYear } from '../lib/portfolioTagParsing';
 import { PORTFOLIO_CONTENT } from '../data/portfolioContent';
 import { PanelHeader } from './PanelHeader';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const PORTFOLIO_TAG = 'portfolio';
 const PORTFOLIO_POST_LIMIT = 20;
@@ -64,9 +65,21 @@ const hashCellStyle: CSSProperties = {
   verticalAlign: 'top',
 };
 
-const companyCellStyle: CSSProperties = {
+const companyCellStyleDesktop: CSSProperties = {
   whiteSpace: 'nowrap',
 };
+
+const companyCellStyleMobile: CSSProperties = {
+  whiteSpace: 'normal',
+};
+
+const tableStyleMobile: CSSProperties = {
+  tableLayout: 'fixed',
+};
+
+// Mobile-only column widths so Project keeps priority over Company, which only
+// needs to fit a short word or two and can wrap onto a second line instead.
+const colWidthsMobile = ['10%', '45%', '15%', '30%'];
 
 const rowStyle: CSSProperties = {
   cursor: 'pointer',
@@ -109,6 +122,7 @@ const skeletonCompanyBarStyle: CSSProperties = {
 };
 
 export function PortfolioContent() {
+  const isMobile = useIsMobile();
   const [status, setStatus] = useState<PortfolioStatus>('loading');
   const [posts, setPosts] = useState<GhostPost[]>([]);
   const [view, setView] = useState<PortfolioView>('list');
@@ -215,7 +229,14 @@ export function PortfolioContent() {
       <PanelHeader nodeId={PORTFOLIO_CONTENT.backLinkWord} />
 
       <div style={wrapperStyle}>
-        <table style={tableStyle}>
+        <table style={isMobile ? { ...tableStyle, ...tableStyleMobile } : tableStyle}>
+          {isMobile && (
+            <colgroup>
+              {colWidthsMobile.map((width, index) => (
+                <col key={index} style={{ width }} />
+              ))}
+            </colgroup>
+          )}
           <thead>
             <tr>
               <th style={{ ...headerCellStyle, ...headerCellDividerStyle }}>
@@ -308,7 +329,7 @@ export function PortfolioContent() {
                   <td style={{ ...cellStyle, ...cellDividerStyle }}>
                     {getProjectYear(post)}
                   </td>
-                  <td style={{ ...cellStyle, ...companyCellStyle }}>{getProjectCompany(post)}</td>
+                  <td style={{ ...cellStyle, ...(isMobile ? companyCellStyleMobile : companyCellStyleDesktop) }}>{getProjectCompany(post)}</td>
                 </tr>
               ))}
             </tbody>

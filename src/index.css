@@ -69,7 +69,6 @@ a {
 
 a:hover {
   color: var(--color-accent);
-  text-decoration: underline;
   border-bottom: none;
 }
 
@@ -115,6 +114,22 @@ code {
   100% {
     width: 0;
   }
+}
+
+/* li here is layout only, not a visual bullet list — neutralize the global li dash/margin. */
+.newsfeed-list li,
+.socials-list li {
+  list-style: none;
+}
+
+.newsfeed-list li::before,
+.socials-list li::before {
+  content: none;
+}
+
+.newsfeed-list li:last-child,
+.socials-list li:last-child {
+  margin-bottom: 0;
 }
 
 .newsfeed-legend-link {
@@ -253,15 +268,15 @@ body {
   font-family: inherit;
   font-size: 10px;
   text-decoration: none;
+  border-bottom: none;
   opacity: 0.65;
   transition:
     color 0.15s ease,
     opacity 0.15s ease;
 }
 
-.react-flow__attribution a:hover {
-  color: var(--color-accent);
-  opacity: 1;
+.react-flow__attribution a:hover { 
+  text-decoration: none; 
 }
 
 .react-flow__node-dot {
