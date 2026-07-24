@@ -24,7 +24,7 @@
   --newsfeed-bg: #1c2832;
   --newsfeed-accent: #00b593;
   --newsfeed-legend: #958b76;
-  --articles-table-bg: #dbcbc6;
+  --articles-table-bg: #e2d1cb;
   --articles-table-border: #a29c8e;
   --content-block-gap: 16px;
   --article-media-rest-opacity: 0.8;
@@ -36,6 +36,57 @@ p {
 
 h2 {
   margin-bottom: var(--content-block-gap);
+  font-weight: 700;
+}
+
+input,
+textarea {
+  background: var(--articles-table-bg);
+  border: none;
+  border-bottom: 1px solid var(--articles-table-border);
+}
+
+li {
+  list-style: none;
+}
+
+li::before {
+  content: '– ';
+}
+
+li:last-child {
+  margin-bottom: 12px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--articles-table-border);
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  border-bottom: none;
+}
+
+code {
+  background: var(--articles-table-bg);
+  border: 1px solid var(--articles-table-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.contact-send-button {
+  text-decoration: none;
+}
+
+.contact-send-button:hover {
+  text-decoration: underline;
 }
 
 .newsfeed-dots::after {
@@ -126,14 +177,6 @@ h2 {
   margin-bottom: var(--content-block-gap);
   text-align: center;
   font-style: italic;
-}
-
-.article-body a {
-  transition: color 150ms ease;
-}
-
-.article-body a:hover {
-  color: var(--color-accent);
 }
 
 .articles-skeleton-bar {

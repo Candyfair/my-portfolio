@@ -146,7 +146,7 @@ export function ContentPanel({
             top: panelTop,
             left: '50%',
             transform: 'translateX(-50%)',
-            width: 'min(520px, 100vw)',
+            width: 'min(530px, 100vw)',
             background: 'var(--color-bg)',
             zIndex: 15,
             borderTop: '1px dashed var(--color-fg)',

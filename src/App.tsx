@@ -111,7 +111,7 @@ function App() {
         <div
           style={{
             width: '100%',
-            maxWidth: '520px',
+            maxWidth: '530px',
             display: 'flex',
             flexDirection: 'column',
             flex: 1,

@@ -29,12 +29,14 @@ const fieldWrapperStyle: CSSProperties = {
 }
 
 const inputStyle: CSSProperties = {
-  border: '1px solid var(--color-fg)',
-  background: 'transparent',
   color: 'var(--color-fg)',
   font: 'inherit',
   padding: '6px 8px',
   width: '100%',
+}
+
+const sendButtonWrapperStyle: CSSProperties = {
+  textAlign: 'right',
 }
 
 // Same visual style as the skills overlay cards (SkillsOverlay.tsx), reused as-is.
@@ -142,20 +144,23 @@ export function ContactForm() {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={status === 'sending'}
-          style={{
-            border: '1px solid var(--color-fg)',
-            padding: '6px 14px',
-            background: 'transparent',
-            color: 'var(--color-fg)',
-            font: 'inherit',
-            cursor: status === 'sending' ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {status === 'sending' ? CONTACT_CONTENT.sendingLabel : CONTACT_CONTENT.sendLabel}
-        </button>
+        <div style={sendButtonWrapperStyle}>
+          <button
+            type="submit"
+            disabled={status === 'sending'}
+            className="contact-send-button"
+            style={{
+              border: 'none',
+              padding: '6px 14px',
+              background: 'none',
+              color: 'var(--color-accent)',
+              font: 'inherit',
+              cursor: status === 'sending' ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {status === 'sending' ? CONTACT_CONTENT.sendingLabel : CONTACT_CONTENT.sendLabel}
+          </button>
+        </div>
 
         {status === 'error' && (
           <p style={{ color: 'var(--color-error)' }}>
