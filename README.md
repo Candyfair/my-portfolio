@@ -1,75 +1,84 @@
-# React + TypeScript + Vite
+# Candice Fairand — Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal portfolio site with no menu: navigation happens entirely through an
+Obsidian-style force-directed graph. Seven nodes — about, portfolio, skills,
+articles, newsfeed, contact, socials — drift gently on screen, physically
+react to being dragged, and reveal their content in a panel below the graph
+when selected.
 
-Currently, two official plugins are available:
+Live site: [candicefairand.com](https://candicefairand.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![screenshot placeholder](./docs/screenshot.png)
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Graph navigation** — built on React Flow, with two independent physics
+  layers: a lightweight idle-floating animation (`requestAnimationFrame`,
+  per-node randomized amplitude/frequency/phase) and a d3-force simulation
+  scoped only to a node and its direct neighbors while it's being dragged,
+  with elastic link stretch and a spring-back to the original position on
+  release.
+- **Content panel** — appears below a dashed separator once a node is
+  selected, with three height/position regimes depending on how much content
+  a panel has, so short content (contact form) and long content (about, full
+  case studies) both feel intentional rather than either cramped or floating
+  awkwardly mid-screen.
+- **CMS-backed content** — the about text, portfolio case studies, articles,
+  and newsfeed are all sourced live from a Ghost blog via the Content API,
+  called directly with `fetch` (no `@tryghost/content-api` dependency).
+- **Contact form** — handled via Web3Forms rather than a full email
+  integration, chosen for compatibility with a Proton Mail-only inbox setup.
 
-## Expanding the ESLint configuration
+## Tech stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [Vite](https://vitejs.dev/) + React + TypeScript
+- [React Flow](https://reactflow.dev/) (`@xyflow/react`) for the graph
+- [Framer Motion](https://www.framer.com/motion/) for panel and label
+  transitions
+- [d3-force](https://d3js.org/d3-force) for drag physics only — node layout
+  itself is fixed, not force-computed
+- [Ghost Content API](https://ghost.org/docs/content-api/) for about,
+  portfolio, articles, and newsfeed content
+- [Web3Forms](https://web3forms.com/) for the contact form
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Styling is inline styles and CSS custom properties throughout. TailwindCSS is
+installed but intentionally unused — see `SPEC.md` for the reasoning and its
+current status.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone https://github.com/Candyfair/my-portfolio.git
+cd my-portfolio
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+No `.env` file is required. The Ghost Content API key and the Web3Forms
+access key are both designed by their providers to be public-safe
+(read-only/scoped for Ghost, an email-alias token for Web3Forms), so they're
+checked in as named constants rather than environment secrets — see
+`ghostClient.ts` and `ContactForm.tsx`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run build      # production build
+npm run preview    # preview the production build locally
 ```
+
+## Documentation
+
+Two living documents guide any further work on this project:
+
+- [`CLAUDE.md`](./CLAUDE.md) — conventions for this project's AI-assisted
+  development workflow: product decisions and architecture are mine, Claude
+  Code is the implementation layer, working from prompts reviewed against
+  the specs below before anything ships.
+- [`SPEC.md`](./SPEC.md) — full behavioral specification: graph physics,
+  panel positioning logic, per-node content behavior, and a running list of
+  open design questions.
+
+## License
+
+Code is MIT-licensed — see [`LICENSE`](./LICENSE). The written content
+(bio, project write-ups, images) is not covered and remains © Candice
+Fairand.

@@ -92,13 +92,28 @@ error message below the input, cleared on next input change.
      (measured via ref) — panel stops rising and scrolls internally instead.
 - Height changes are animated (smooth slide/height transition), not instant.
 - Only the panel's own content scrolls (`overflow-y: auto`) when it overflows — the page itself never scrolls.
+- Every panel displays a `"> nodeName"` breadcrumb header at the top of its content, generalized across all node types — implemented independently in each node's own content component (e.g. `ArticlesContent.tsx`, `PortfolioContent.tsx`), not a shared component (see §12 for the deferred consolidation).
 - Content type per node:
-  - `portfolio`, `articles` → table
-  - `newsfeed` → terminal-styled log box
-  - `contact` → form (email + message + send)
-  - `about` → plain text bio
+  - `portfolio` → table + in-app case-study detail view, Ghost-sourced (§9quinquies, §10)
+  - `articles` → table + in-app detail view, Ghost-sourced (§9ter)
+  - `newsfeed` → terminal-styled log box, Ghost-sourced (§9bis)
+  - `contact` → form (email + message + send) (§9)
+  - `about` → text bio, Ghost-sourced (§9quater)
   - `socials` → link list
   - `skills` → see §8
+
+  ### Desktop panel vertical positioning (shared riseCap anchor)
+
+  On desktop, `about`, `portfolio`, and `articles` share a single `riseCap`
+  value — `navListBottom + 20px` — rather than each holding an independent
+  per-node constant. This is a deliberate exception to the project's
+  "independent constants per node" principle: these three nodes' long-form
+  content naturally shares the same visual ceiling relative to the nav list,
+  so a single shared anchor avoids redundant constants without introducing
+  cross-node coupling (the anchor is a read of the nav list's position, not
+  a formula that lets one node's behavior affect another's). Nodes with
+  short-form content are unaffected, since they never reach `riseCap` in
+  the first place (see the height-regime description above).
 
   ### Mobile panel vertical positioning (riseCap pattern)
 
@@ -139,13 +154,14 @@ error message below the input, cleared on next input change.
 - Success feedback: floating toast, styled after SkillsOverlay's card convention (border, padding, font), fade in/out via Framer Motion, auto-dismiss after `CONTACT_TOAST_DISPLAY_DURATION_MS`. Scoped entirely to `ContactForm.tsx` — `ContentPanel.tsx` untouched.
 - Toast is positioned `top: 0` over the form, not floating above it (`bottom: '100%'` was the initial attempt, but the panel's shared height-regime system clips at y=0 via both `overflowY: auto` and an animated `clip-path` — nothing renders above that edge, in-flow or not).
 - Error feedback stays inline at its original position under the button (not a toast), styled via a new `--color-error` CSS variable added alongside `--color-bg`/`--color-fg`/`--color-accent`.
+- Send button: no visible border/background (`background: none`, `border: none`), text color `var(--color-accent)`, right-aligned beneath the message field, `text-decoration: underline` on hover only.
 
 ## 9bis. Newsfeed — special behavior
 
 - Content is sourced from the Ghost Content API (`https://candygetshandy.com/ghost/api/content/posts/`), fetching the 6 latest posts tagged `#newsfeed` (title + published date only, via `fields=id,slug,title,published_at`). Native `fetch`, no `@tryghost/content-api` dependency — same rationale as Web3Forms for the contact form: no build-time SDK needed for a couple of read-only calls.
 - `GHOST_CONTENT_API_KEY` is a named constant inside `ghostClient.ts`, not an env variable — Ghost designs Content API keys to be public/client-safe (read-only, scoped to published content), same trust model as `WEB3FORMS_ACCESS_KEY`.
 - Requests pin the API response format to the live Ghost install (6.42.0) via an `Accept-Version: v6.42` header, so future Ghost upgrades on the CMS side don't silently change the response shape underneath the client.
-- `getPostBySlug(slug)` is implemented in `ghostClient.ts` alongside `getPostsByTag` but not yet called anywhere — reserved for the future `articles`/`portfolio` Ghost integration (still unscoped, see §12).
+- `getPostBySlug(slug)` is implemented in `ghostClient.ts` alongside `getPostsByTag` — not called from newsfeed itself, but used by the articles and portfolio detail views (§9ter, §9quinquies).
 - State: plain `useState`, 3 states: `loading` / `success` / `error` — no `idle`, the fetch starts immediately on mount.
 - Empty state (`success` with zero posts) shows a static "Nothing here yet." message from `newsfeedContent.ts`, distinct from the `error` state.
 - The title is followed by a permanent animated ellipsis (`.newsfeed-dots`, CSS `steps(4, end)` animation, `infinite`) — a decorative terminal-cursor flourish, not a loading indicator; it animates regardless of fetch status.
@@ -167,10 +183,37 @@ error message below the input, cleared on next input change.
 - No new CSS custom properties beyond `.article-body img` / `.articles-back-link` — styled with the existing `--color-fg` / `--color-accent` / `--color-error` variables, unlike newsfeed's dedicated `--newsfeed-*` set.
 - Scoped entirely to `ArticlesContent.tsx` / `articlesContent.ts`, plus the two CSS rules above in `index.css` (same file already extended for `.articles-row`/`.articles-table-*`) — `ghostClient.ts` and `ContentPanel.tsx` untouched; the 3-regime height system (§7) applies to the detail view automatically since it measures content height generically.
 
+## 9quater. About — special behavior
+
+- Content is sourced from Ghost: a single post tagged `portfolio-about` (public tag, see the tag-visibility note under §9quinquies), replacing the previous static text.
+- The text is an edited version of the LinkedIn bio, with the opening "I'm a..." removed — the name is already carried by the panel header, so repeating it read as redundant against the site's otherwise factual tone.
+
+## 9quinquies. Portfolio — special behavior
+
+- Content is sourced from Ghost, posts tagged `portfolio` (public tag — see tag-visibility note below).
+- Table + in-app case-study detail view, built on the exact model of the articles detail view (§9ter): clicking a row replaces the panel's table with the case-study view in place — no external navigation, no separate route, no panel stacking. This resolves §10.
+- Case-study images reuse the article image treatment unchanged — no new image styling introduced for portfolio.
+- Breadcrumb (`"> portfolio"`, `"> portfolio / project title"`) is duplicated locally in `PortfolioContent.tsx` rather than extracted into a component shared with `ArticlesContent.tsx` — consistent with the project's convention against shared-component edits outside a dedicated session (see §12).
+- **Company** is encoded as a numeric tag (1–2 digits) on each post, resolved via a `COMPANY_BY_TAG_ID` lookup table in `portfolioTagParsing.ts` (fallback: `—`). Chosen over a plaintext company tag because posts stay technically public via `/tag/portfolio/`; an opaque numeric ID avoids exposing client names in a public URL. Table lists `personal` and `open source` first, as the most frequent values.
+- **Year** is read from `post.custom_excerpt` (a native Ghost field, already returned by the Content API by default) rather than a dedicated tag — avoids an extra tag per post, and importantly decouples Year from display Order.
+- **Order** is driven by `published_at`, deliberately decoupled from Year — gives full manual control over row order via backdating in Ghost admin, which a Year-based sort would not allow.
+- `getPostsByTag` (`ghostClient.ts`) gained an optional `includeTags` parameter, default `false`, to fetch tag data for Company/Year parsing without changing the behavior of existing calls — articles and newsfeed unaffected, verified non-regressed after the change.
+
+### Tag visibility (Ghost) — general convention
+
+Any Ghost tag used to drive site content (as `portfolio` and `portfolio-about` are) must stay public, not internal (`#`-prefixed). An internal tag generates a different slug (`hash-x`) not covered by the content filter already in place in `routes.yaml` — this was the exact cause of an early bug (`#portfolio-about` appearing on the Ghost blog home despite the filter). Applies to any future functional tag introduced the same way.
+
+### SEO / indexing (separate repo: `ghost-candy-theme`)
+
+Not part of this repository — documented here for context since it was decided in the same session as the About/Portfolio Ghost integration.
+- `routes.yaml` only excludes tagged posts from the Ghost blog home (`/`); tag archive pages (`/tag/...`) stay public and indexable via `sitemap.xml`.
+- A custom `robots.txt`, deployed via the `ghost-candy-theme` repo's existing GitHub Actions pipeline (`TryGhost/action-deploy-theme` — plain commit + push, no manual upload), adds `Disallow` rules for `/tag/portfolio/`, `/tag/portfolio-about/`, and `/tag/news/` to limit indexing without blocking access. `robots.txt` is an indexing preference, not an access control — nothing more sensitive than a year should ever pass through these tag pages.
+- Cloudflare injects a "Managed content" block into the served `robots.txt` automatically (its AI-bot-blocking feature) — unrelated to the source file, not to be edited from the theme repo.
+- Cloudflare caches `robots.txt` for 4 hours (`max-age=14400`) — after any push, a manual Cloudflare cache purge on that specific URL is needed to see the change immediately.
+
 ## 10. Project case-study sub-page
 
-Clicking a project row in the `portfolio` table opens a full case-study view (text + screenshots, see `Portfolio__Page_de_projet.png`).
-**OPEN QUESTION — not yet specified:** does this replace the content panel entirely, stack as a new panel, or something else? Do not implement until this is confirmed.
+Clicking a project row in the `portfolio` table replaces the panel's current content with the case-study detail view (text + screenshots, see `Portfolio__Page_de_projet.png`), following the same in-panel pattern as the articles detail view (§9ter) — no external navigation, no separate route, no panel stacking. See §9quinquies for portfolio-specific sourcing.
 
 ## 11. Mobile adaptations
 
@@ -181,12 +224,45 @@ Clicking a project row in the `portfolio` table opens a full case-study view (te
 
 ## 12. Open items — do not assume, ask before implementing
 
-- `portfolio` case-studies will also be sourced from the Ghost blog API. Integration details (data shape, caching) are NOT yet specified — do not implement until this is scoped in a dedicated session. (`newsfeed` and `articles` are implemented — see §9bis and §9ter.)
 - Exact stagger order for skills cards
 - Exact floating animation parameters (amplitude/frequency ranges)
-- Behavior of the project case-study sub-page (§9)
 - Zustand vs Context for graph ↔ panel state sync
 - Whether drag physics propagates to the dragged node's direct neighbors or only the dragged node itself
 - Exact color/design tokens beyond grey (default) / orange (active)
-- Input field visual styling does not yet match the mockup (colors, border, font) — pending a dedicated visual-polish pass.
 - Diagnostic sur l'utilisation de Tailwind dans le projet
+- Consolidate the duplicated `"> nodeName"` breadcrumb rendering (independently implemented in each node's content component) into a shared component, if desired — deliberately deferred, consistent with the project's convention against shared-component edits outside a dedicated session
+
+## 13. Global element styling conventions
+
+Established during the site-wide styling pass. These are base-element rules
+in the global stylesheet (`index.css`), not per-node inline styles — a
+deliberate exception to node-by-node isolation, since they're meant to
+apply uniformly everywhere.
+
+- `input, textarea`: `background: var(--articles-table-bg)`, no border
+  except `border-bottom: 1px solid var(--articles-table-border)`. The top
+  nav search `<input>` itself stays `background: transparent` /
+  `border: none` inline (correct, not a bug) — its parent `<div>` in
+  `App.tsx` carries the background/border instead, since that div is what
+  visually draws the input's box.
+- `li`: `list-style-type: "– "` (dash marker, no `::before` needed),
+  `li:last-child { margin-bottom: 12px; }`. Overridden back to
+  `list-style: none` (no marker, no extra margin) in `NewsfeedContent.tsx`
+  and `SocialsContent.tsx`, where `<li>` is used for structural layout
+  rather than visual bullets.
+- `a`: `border-bottom: 1px dotted var(--articles-table-border)` at rest, no
+  `text-decoration`. On hover: `color: var(--color-accent)`,
+  `text-decoration: underline`, `border-bottom: none`. Explicitly excluded:
+  graph node labels / nav breadcrumbs (their own color logic), and
+  `.react-flow__attribution a` (React Flow's required MIT-license credit
+  link — reset via `border-bottom: none` since its existing
+  `text-decoration: none` rule doesn't intersect with the global rule's
+  `border-bottom` property; hover also neutralized to `color: inherit`,
+  since it's a license mention, not content).
+- `code`: `background: var(--articles-table-bg)`, `padding: 2px 6px`,
+  `border-radius: 4px`, `font-size: ~0.9em`, monospace (inherited from
+  site default).
+- Naming debt: `--articles-table-bg` / `--articles-table-border` now style
+  far more than the articles table (inputs, code, portfolio table). Name
+  no longer reflects usage — candidate for rename (e.g. `--panel-bg` /
+  `--panel-border`) during the end-of-project audit.
